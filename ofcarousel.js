@@ -1,0 +1,328 @@
+/**
+ * OverflowCarousel - CSS Scroll Snap ベースのカルーセル
+ * 
+ * 設計思想:
+ * - CSS Scroll Snap を使用してスナップ動作を実現
+ * - HTML 構造は変わらず、CSS 変数でレイアウトを制御
+ * - 無限ループは DOM クローンで実装
+ * - JS はクローン管理とスクロール位置調整のみ担当
+ * 
+ * オプション:
+ *   - itemsVisible: 見える個数（デフォルト: 1）
+ *   - peekRatio: item幅の相対比率（例: 0.15 = 15%）
+ *   - peek: 固定peek幅（px のみ、例: '60px'）
+ *   - gap: item間隔（デフォルト: '16px'）
+ *   - aspect: item のアスペクト比（デフォルト: 1）
+ *   - infinite: 無限ループ（デフォルト: true）
+ */
+
+class OverflowCarousel {
+  constructor(selectorOrElement, options = {}) {
+    // Element resolution
+    if (typeof selectorOrElement === 'string') {
+      this.root = document.querySelector(selectorOrElement);
+    } else {
+      this.root = selectorOrElement;
+    }
+
+    if (!this.root) {
+      console.error('OverflowCarousel: root element not found');
+      return;
+    }
+
+    // Read CSS variables from inline style (highest priority)
+    const cssVarItemsVisible = this.root.style.getPropertyValue('--ofc-items-visible').trim();
+    const cssVarPeek = this.root.style.getPropertyValue('--ofc-peek').trim();
+    const cssVarGap = this.root.style.getPropertyValue('--ofc-gap').trim();
+    const cssVarAspect = this.root.style.getPropertyValue('--ofc-aspect-ratio').trim();
+
+    // Options with defaults (CSS variables override defaults, but JS options override CSS variables)
+    this.options = {
+      itemsVisible: cssVarItemsVisible ? parseInt(cssVarItemsVisible) : 1,
+      peek: cssVarPeek || '60px',
+      peekRatio: undefined,  // If set, peek = slideWidth * peekRatio
+      gap: cssVarGap || '16px',
+      aspect: cssVarAspect ? parseFloat(cssVarAspect) : 1,
+      infinite: true,
+      ...options  // JS options have highest priority
+    };
+
+    this.root.style.setProperty('--ofc-items-visible', this.options.itemsVisible.toString());
+    this.root.style.setProperty('--ofc-peek', this.options.peek);
+    this.root.style.setProperty('--ofc-gap', this.options.gap);
+    this.root.style.setProperty('--ofc-aspect-ratio', this.options.aspect.toString());
+    
+    // ピクセル値をキャッシュ（後で viewport 利用可能後に再計算）
+    this._gapPx = this._parsePixels(this.options.gap);
+
+    // 無限ループの設定（有効な場合、全スライドを左右に複製）
+    if (this.options.infinite) {
+      this._setupInfiniteLoop();
+      this._setupScrollJump();
+    } else {
+      // infinite: false の場合も初期化が必要（peek計算とpadding調整）
+      this._setupNonInfiniteMode();
+    }
+
+    // コントロール（ボタン・キーボード）の設定
+    this._setupControls();
+
+    console.log('[OverflowCarousel] Initialized:', {
+      id: this.root.id,
+      options: this.options
+    });
+  }
+
+  _setupInfiniteLoop() {
+    this.viewport = this.root.querySelector('.ofc-viewport');
+    this.track = this.root.querySelector('.ofc-track');
+    const originalSlides = Array.from(this.track.querySelectorAll('.ofc-slide'));
+
+    if (originalSlides.length === 0) {
+      console.warn('OverflowCarousel: no .ofc-slide found');
+      return;
+    }
+
+    this._originalCount = originalSlides.length;
+    
+    // peekPx を計算: peekRatio が設定されていれば優先、そうでなければ peek 文字列値を使用
+    if (this.options.peekRatio !== undefined) {
+      // peekRatio: viewport幅と連立方程式で計算
+      // peek = (viewportWidth * peekRatio) / (itemsVisible + 2 * peekRatio)
+      const viewportWidth = this.viewport.offsetWidth;
+      const itemsVisible = this.options.itemsVisible;
+      const peekRatio = this.options.peekRatio;
+      this._peekPx = (viewportWidth * peekRatio) / (itemsVisible + 2 * peekRatio);
+    } else {
+      // peek: 文字列値を使用（px, %, vw など）
+      const viewportWidth = this.viewport.offsetWidth;
+      this._peekPx = this._parsePixels(this.options.peek, viewportWidth);
+    }
+    
+    // 計算された peek を CSS 変数に反映
+    this.root.style.setProperty('--ofc-peek', this._peekPx + 'px');
+
+    // 両端に全スライドのクローンを作成
+    const startFragment = document.createDocumentFragment();
+    const endFragment = document.createDocumentFragment();
+
+    // 先頭にクローンを挿入（逆順で順序を保持）
+    for (let i = originalSlides.length - 1; i >= 0; i--) {
+      const clone = originalSlides[i].cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      startFragment.insertBefore(clone, startFragment.firstChild);
+    }
+    // 終端にクローンを追加
+    for (let i = 0; i < originalSlides.length; i++) {
+      const clone = originalSlides[i].cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      endFragment.appendChild(clone);
+    }
+
+    this.track.insertBefore(startFragment, this.track.firstChild);
+    this.track.appendChild(endFragment);
+
+    // クローン領域をスキップして最初の実スライドまでスクロール
+    requestAnimationFrame(() => {
+      const step = this._getStep();
+      if (step > 0) {
+        this._isAdjusting = true;
+        const prevBehavior = this.viewport.style.scrollBehavior;
+        this.viewport.style.scrollBehavior = 'auto';
+        // 左側に部分的な前のアイテムを表示するため peek でオフセット
+        this.viewport.scrollLeft = step * this._originalCount - this._peekPx;
+        this.viewport.style.scrollBehavior = prevBehavior;
+        this._isAdjusting = false;
+      }
+    });
+
+    console.log('[OverflowCarousel] Infinite loop setup:', {
+      originalCount: this._originalCount,
+      peekRatio: this.options.peekRatio,
+      peekPx: this._peekPx,
+      step: this._getStep(),
+      firstSlide: originalSlides[0]?.offsetWidth,
+      trackChildren: this.track.children.length
+    });
+  }
+
+  _setupNonInfiniteMode() {
+    // infinite: false の場合の初期化
+    // 最初と最後で余白を削除し、自然な見た目にする
+    this.viewport = this.root.querySelector('.ofc-viewport');
+    this.track = this.root.querySelector('.ofc-track');
+    const originalSlides = Array.from(this.track.querySelectorAll('.ofc-slide'));
+
+    if (originalSlides.length === 0) {
+      console.warn('OverflowCarousel: no .ofc-slide found');
+      return;
+    }
+
+    this._originalCount = originalSlides.length;
+    
+    // peekPx を計算
+    if (this.options.peekRatio !== undefined) {
+      const viewportWidth = this.viewport.offsetWidth;
+      const itemsVisible = this.options.itemsVisible;
+      const peekRatio = this.options.peekRatio;
+      this._peekPx = (viewportWidth * peekRatio) / (itemsVisible + 2 * peekRatio);
+    } else {
+      const viewportWidth = this.viewport.offsetWidth;
+      this._peekPx = this._parsePixels(this.options.peek, viewportWidth);
+    }
+    
+    // CSS変数に反映
+    this.root.style.setProperty('--ofc-peek', this._peekPx + 'px');
+    
+    // infinite: false の場合、最初のスライドの前に左margin、最後のスライドの後に右marginを削除
+    // 中間ではpeekが見えるようにtrackのpaddingは維持
+    const firstSlide = originalSlides[0];
+    const lastSlide = originalSlides[originalSlides.length - 1];
+    
+    if (firstSlide) {
+      // 最初のスライドを左端に寄せる（負のmarginでtrack paddingをキャンセル）
+      firstSlide.style.marginLeft = `-${this._peekPx}px`;
+    }
+    if (lastSlide) {
+      // 最後のスライドを右端に寄せる
+      lastSlide.style.marginRight = `-${this._peekPx}px`;
+    }
+    
+    console.log('[OverflowCarousel] Non-infinite mode setup:', {
+      originalCount: this._originalCount,
+      peekPx: this._peekPx,
+      infinite: false
+    });
+  }
+
+  _setupScrollJump() {
+    if (!this.viewport || !this.track) return;
+    const getMaxRealScroll = () => this._getStep() * this._originalCount;
+
+    // デバウンス処理されたスクロールハンドラー: スクロール終了後に位置調整
+    // スクロール中の連続呼び出しを避けることで、振動を防止
+    this._onScroll = () => {
+      if (this._isAdjusting) return;
+      clearTimeout(this._scrollTimer);
+      this._scrollTimer = setTimeout(() => {
+        const left = this.viewport.scrollLeft;
+        const step = this._getStep();
+        const maxReal = getMaxRealScroll();
+        const totalBefore = step * this._originalCount;
+        // 実スライド領域の境界（peek オフセットを考慮）
+        const realStartLeft = totalBefore - this._peekPx;
+        const realEndLeft = totalBefore + maxReal - this._peekPx;
+
+        // 開始クローン領域に到達した
+        if (left < realStartLeft) {
+          const offsetIntoClones = left - realStartLeft;
+          const newLeft = realStartLeft + maxReal + offsetIntoClones;
+          this._isAdjusting = true;
+          const prevBehavior = this.viewport.style.scrollBehavior;
+          this.viewport.style.scrollBehavior = 'auto';
+          this.viewport.scrollLeft = newLeft;
+          this.viewport.style.scrollBehavior = prevBehavior;
+          this._isAdjusting = false;
+        }
+        // 終端クローン領域に到達した
+        else if (left > realEndLeft) {
+          const offsetIntoClones = left - realEndLeft;
+          const newLeft = realStartLeft + offsetIntoClones;
+          this._isAdjusting = true;
+          const prevBehavior = this.viewport.style.scrollBehavior;
+          this.viewport.style.scrollBehavior = 'auto';
+          this.viewport.scrollLeft = newLeft;
+          this.viewport.style.scrollBehavior = prevBehavior;
+          this._isAdjusting = false;
+        }
+      }, 100);
+    };
+
+    this.viewport.addEventListener('scroll', this._onScroll, { passive: true });
+  }
+
+  _getStep() {
+    // 1つのスライド移動距離 = スライド幅 + gap
+    const first = this.track.querySelector('.ofc-slide');
+    const gap = this._gapPx;
+    const w = first ? first.getBoundingClientRect().width : 0;
+    return w + gap;
+  }
+
+  _setupControls() {
+    const viewport = this.root.querySelector('.ofc-viewport');
+    const prevBtn = this.root.querySelector('.ofc-nav.ofc-prev');
+    const nextBtn = this.root.querySelector('.ofc-nav.ofc-next');
+
+    if (!viewport) {
+      console.warn('OverflowCarousel: .ofc-viewport not found');
+      return;
+    }
+
+    // スクロール距離計算: 1スライド幅 + gap
+    const calculateScrollDistance = () => {
+      const track = this.root.querySelector('.ofc-track');
+      const firstSlide = track.querySelector('.ofc-slide');
+      if (firstSlide) {
+        return firstSlide.offsetWidth + this._parsePixels(this.options.gap);
+      }
+      return 0;
+    };
+
+    // 前ボタン
+    prevBtn && prevBtn.addEventListener('click', () => {
+      const distance = calculateScrollDistance();
+      viewport.scrollBy({ left: -distance, behavior: 'smooth' });
+    });
+
+    // 次ボタン
+    nextBtn && nextBtn.addEventListener('click', () => {
+      const distance = calculateScrollDistance();
+      viewport.scrollBy({ left: distance, behavior: 'smooth' });
+    });
+
+    // キーボード操作対応
+    this._keyboardListener = (e) => {
+      const distance = calculateScrollDistance();
+      if (e.key === 'ArrowLeft') {
+        viewport.scrollBy({ left: -distance, behavior: 'smooth' });
+      }
+      if (e.key === 'ArrowRight') {
+        viewport.scrollBy({ left: distance, behavior: 'smooth' });
+      }
+    };
+    document.addEventListener('keydown', this._keyboardListener);
+  }
+
+  _parsePixels(value, base = window.innerWidth) {
+    // CSS 値（px, %, vw, em）をピクセルに変換
+    // base パラメータは % や vw の計算基準を指定
+    if (typeof value === 'number') return value;
+    const match = String(value).trim().match(/^([\d.]+)(px|%|vw|em)?$/);
+    if (!match) return 0;
+    const [, num, unit] = match;
+    const n = parseFloat(num);
+    if (!unit || unit === 'px') return n;
+    if (unit === '%') return (base * n) / 100;
+    if (unit === 'vw') return (base * n) / 100;
+    if (unit === 'em') return n * 16;
+    return 0;
+  }
+
+  destroy() {
+    // イベントリスナーをクリーンアップ
+    document.removeEventListener('keydown', this._keyboardListener);
+    this.viewport && this._onScroll && this.viewport.removeEventListener('scroll', this._onScroll);
+  }
+}
+
+// data-carousel 属性を持つ要素を自動初期化
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-carousel]').forEach((el) => {
+    const options = JSON.parse(el.dataset.carousel || '{}');
+    new OverflowCarousel(el, options);
+  });
+});
+
+// グローバルに公開
+window.OverflowCarousel = OverflowCarousel;

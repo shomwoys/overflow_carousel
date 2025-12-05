@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test: infinite: false</title>
+  <link rel="stylesheet" href="ofcarousel.css">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      background: #f5f5f5;
+    }
+    h1 {
+      margin-bottom: 2rem;
+      font-size: 2rem;
+    }
+    h2 {
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      color: #333;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 0.5rem;
+    }
+    h3 {
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      color: #555;
+    }
+    .demo-carousel {
+      margin-bottom: 3rem;
+    }
+    .demo-info {
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .note {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      padding: 0.5rem 1rem;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    .back-link:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-link">← デモ一覧に戻る</a>
+
+  <h1>infinite オプション検証テスト</h1>
+
+  <div class="note">
+    <strong>テスト目的:</strong> infinite: true と infinite: false の動作を比較検証します。
+    <ul>
+      <li><strong>infinite: true</strong> - 無限ループ（クローンあり）</li>
+      <li><strong>infinite: false</strong> - ループなし（クローンなし）、端で止まる</li>
+    </ul>
+  </div>
+
+  <section class="demo-carousel">
+    <h3>Demo A: infinite: true（参考：現在の動作）</h3>
+    <p class="demo-info">itemsVisible: 2, peekRatio: 0.15, <strong>infinite: true</strong></p>
+    <p class="demo-info" style="color: #999;">期待: 端に達してもループして最初に戻る</p>
+    <section class="ofcarousel" id="carouselA" style="--ofc-items-visible: 2;">
+      <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">1</div>
+          <div class="ofc-slide">2</div>
+          <div class="ofc-slide">3</div>
+          <div class="ofc-slide">4</div>
+          <div class="ofc-slide">5</div>
+        </div>
+      </div>
+      <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Demo B: infinite: false（新規テスト）</h3>
+    <p class="demo-info">itemsVisible: 2, peekRatio: 0.15, <strong>infinite: false</strong></p>
+    <p class="demo-info" style="color: #999;">期待: 端に達したら止まる（スクロール不可）</p>
+    <section class="ofcarousel" id="carouselB" style="--ofc-items-visible: 2;">
+      <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">1</div>
+          <div class="ofc-slide">2</div>
+          <div class="ofc-slide">3</div>
+          <div class="ofc-slide">4</div>
+          <div class="ofc-slide">5</div>
+        </div>
+      </div>
+      <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Demo C: infinite: false + 単一アイテム</h3>
+    <p class="demo-info">itemsVisible: 1, peek: 60px, <strong>infinite: false</strong></p>
+    <p class="demo-info" style="color: #999;">期待: 3つのアイテムを順番に表示、端で止まる</p>
+    <section class="ofcarousel" id="carouselC" aria-roledescription="carousel">
+      <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">A</div>
+          <div class="ofc-slide">B</div>
+          <div class="ofc-slide">C</div>
+        </div>
+      </div>
+      <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+    </section>
+  </section>
+
+  <div class="note">
+    <strong>検証チェックリスト:</strong>
+    <ul>
+      <li>☐ ページロード時にコンソールエラーがないか</li>
+      <li>☐ Demo A（infinite: true）がループするか</li>
+      <li>☐ Demo B（infinite: false）が端で止まるか</li>
+      <li>☐ Demo C（infinite: false）が正常に表示されるか</li>
+      <li>☐ ボタン・キーボード操作が正常に機能するか</li>
+    </ul>
+  </div>
+
+  <script src="ofcarousel.js"></script>
+  <script>
+    console.log('Initializing infinite option test carousels...');
+
+    // Demo A: infinite: true
+    const cA = new OverflowCarousel('#carouselA', { peekRatio: 0.15, infinite: true });
+    console.log('carouselA (infinite: true) created');
+
+    // Demo B: infinite: false
+    const cB = new OverflowCarousel('#carouselB', { peekRatio: 0.15, infinite: false });
+    console.log('carouselB (infinite: false) created');
+
+    // Demo C: infinite: false + single item
+    const cC = new OverflowCarousel('#carouselC', { peek: '60px', infinite: false });
+    console.log('carouselC (infinite: false, single item) created');
+
+    console.log('All test carousels initialized.');
+  </script>
+</body>
+</html>
