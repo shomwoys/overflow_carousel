@@ -47,6 +47,12 @@ python3 -m http.server 8000
 | `gap` | item間隔 | '16px' |
 | `aspect` | itemのアスペクト比 | 1 |
 | `infinite` | 無限ループ有効 | true |
+| `dots` | ドットインジケーターを表示 | false |
+| `autoplay` | 一定間隔で自動スクロール | false |
+| `autoplayInterval` | オートプレイの間隔（ms） | 3000 |
+| `pauseOnHover` | ホバー時にオートプレイを一時停止 | true |
+| `pauseOnFocus` | フォーカス時にオートプレイを一時停止 | true |
+| `pauseOnVisibility` | タブ非表示時にオートプレイを一時停止 | true |
 
 ## レイアウト計算フロー
 

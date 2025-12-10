@@ -262,6 +262,44 @@
       </div>
     </section>
 
+    <h2>拡張オプション: dots / autoplay</h2>
+
+    <section class="demo-carousel">
+      <h3>Demo 11: dots で位置を表示</h3>
+      <p class="demo-info">itemsVisible: 1, peek: 50px, infinite: true, dots: true</p>
+      <section class="ofcarousel" id="carousel11" aria-roledescription="carousel">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide">dot</div>
+            <div class="ofc-slide">indicator</div>
+            <div class="ofc-slide">example</div>
+            <div class="ofc-slide">works</div>
+          </div>
+        </div>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </section>
+    </section>
+
+    <section class="demo-carousel">
+      <h3>Demo 12: autoplay + dots</h3>
+      <p class="demo-info">itemsVisible: 3, peekRatio: 0.1, infinite: true, dots: true, autoplay: 2s</p>
+      <section class="ofcarousel" id="carousel12" aria-roledescription="carousel" style="--ofc-items-visible: 3;">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide">auto</div>
+            <div class="ofc-slide">play</div>
+            <div class="ofc-slide">demo</div>
+            <div class="ofc-slide">with</div>
+            <div class="ofc-slide">dots</div>
+            <div class="ofc-slide">smile</div>
+          </div>
+        </div>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </section>
+    </section>
+
     <p class="hint">複数のカルーセルを独立して制御できます。左右キーでも操作可能です。</p>
   </main>
 
@@ -294,6 +332,16 @@
     // Demo 9-10: viewport幅バリエーション
     const c9 = new OverflowCarousel('#carousel9', { peekRatio: 0.1 });
     const c10 = new OverflowCarousel('#carousel10', { peekRatio: 0.2 });
+
+    // Demo 11-12: dots / autoplay
+    const c11 = new OverflowCarousel('#carousel11', { dots: true, peek: '50px' });
+    const c12 = new OverflowCarousel('#carousel12', {
+      peekRatio: 0.1,
+      dots: true,
+      autoplay: true,
+      autoplayInterval: 2000,
+      pauseOnHover: true
+    });
 
     console.log('All carousels initialized.');
   </script>
