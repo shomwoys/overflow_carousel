@@ -30,19 +30,20 @@ class OverflowCarousel {
       return;
     }
 
-    // Read CSS variables from inline style (highest priority)
-    const cssVarItemsVisible = this.root.style.getPropertyValue('--ofc-items-visible').trim();
-    const cssVarPeek = this.root.style.getPropertyValue('--ofc-peek').trim();
-    const cssVarGap = this.root.style.getPropertyValue('--ofc-gap').trim();
-    const cssVarAspect = this.root.style.getPropertyValue('--ofc-aspect-ratio').trim();
+    // Read CSS variables from computed style (including :root defaults)
+    const computedStyle = getComputedStyle(this.root);
+    const cssVarItemsVisible = computedStyle.getPropertyValue('--ofc-items-visible').trim();
+    const cssVarPeek = computedStyle.getPropertyValue('--ofc-peek').trim();
+    const cssVarGap = computedStyle.getPropertyValue('--ofc-gap').trim();
+    const cssVarAspect = computedStyle.getPropertyValue('--ofc-aspect-ratio').trim();
 
-    // Options with defaults (CSS variables override defaults, but JS options override CSS variables)
+    // Options: CSS variables as defaults, JS options override them
     this.options = {
-      itemsVisible: cssVarItemsVisible ? parseInt(cssVarItemsVisible) : 1,
+      itemsVisible: parseInt(cssVarItemsVisible) || 3,
       peek: cssVarPeek || '60px',
-      peekRatio: undefined,  // If set, peek = slideWidth * peekRatio
-      gap: cssVarGap || '16px',
-      aspect: cssVarAspect ? parseFloat(cssVarAspect) : 1,
+      peekRatio: undefined,  // If set, peek will be calculated dynamically
+      gap: cssVarGap || '5px',
+      aspect: parseFloat(cssVarAspect) || 1.78,
       infinite: true,
       dots: false,
       autoplay: false,
@@ -53,10 +54,19 @@ class OverflowCarousel {
       ...options  // JS options have highest priority
     };
 
-    this.root.style.setProperty('--ofc-items-visible', this.options.itemsVisible.toString());
-    this.root.style.setProperty('--ofc-peek', this.options.peek);
-    this.root.style.setProperty('--ofc-gap', this.options.gap);
-    this.root.style.setProperty('--ofc-aspect-ratio', this.options.aspect.toString());
+    // Apply CSS variables only if JS options explicitly override them
+    if (options.itemsVisible !== undefined) {
+      this.root.style.setProperty('--ofc-items-visible', this.options.itemsVisible.toString());
+    }
+    if (options.peek !== undefined) {
+      this.root.style.setProperty('--ofc-peek', this.options.peek);
+    }
+    if (options.gap !== undefined) {
+      this.root.style.setProperty('--ofc-gap', this.options.gap);
+    }
+    if (options.aspect !== undefined) {
+      this.root.style.setProperty('--ofc-aspect-ratio', this.options.aspect.toString());
+    }
     
     // ピクセル値をキャッシュ（後で viewport 利用可能後に再計算）
     this._gapPx = this._parsePixels(this.options.gap);
@@ -298,8 +308,11 @@ class OverflowCarousel {
       this._restartAutoplay();
     });
 
-    // キーボード操作対応
+    // キーボード操作対応（carousel内のフォーカスのみ反応）
     this._keyboardListener = (e) => {
+      // carousel内にフォーカスがない場合は無視
+      if (!this.root.contains(document.activeElement)) return;
+      
       const distance = calculateScrollDistance();
       if (e.key === 'ArrowLeft') {
         viewport.scrollBy({ left: -distance, behavior: 'smooth' });
@@ -341,7 +354,21 @@ class OverflowCarousel {
       this._dotButtons.push(dot);
     }
 
-    this.root.appendChild(container);
+    // .ofc-navs 内に dots を配置
+    const navsContainer = this.root.querySelector('.ofc-navs');
+    if (navsContainer) {
+      const prevBtn = navsContainer.querySelector('.ofc-prev');
+      const nextBtn = navsContainer.querySelector('.ofc-next');
+      // prevBtn と nextBtn の間に dots を挿入
+      if (nextBtn) {
+        navsContainer.insertBefore(container, nextBtn);
+      } else {
+        navsContainer.appendChild(container);
+      }
+    } else {
+      this.root.appendChild(container);
+    }
+
     this._attachActiveTracker();
     this._updateActiveDot(this._getCurrentIndex());
   }
