@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test: Auto .ofc-slide class</title>
+  <link rel="stylesheet" href="ofcarousel.css">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      background: #f5f5f5;
+    }
+    h1 {
+      margin-bottom: 2rem;
+      font-size: 2rem;
+    }
+    h2 {
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      color: #333;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 0.5rem;
+    }
+    h3 {
+      margin-top: 2rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      color: #555;
+    }
+    .demo-carousel {
+      margin-bottom: 3rem;
+    }
+    .demo-info {
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .note {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    .success {
+      background: #d4edda;
+      border: 1px solid #28a745;
+      color: #155724;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      padding: 0.5rem 1rem;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    .back-link:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-link">← デモ一覧に戻る</a>
+
+  <h1>自動 .ofc-slide クラス付与のテスト</h1>
+
+  <div class="note">
+    <strong>テスト目的:</strong> .ofc-track の直下要素に .ofc-slide クラスがない場合、
+    自動的に .ofc-slide クラスが付与されることを確認します。
+  </div>
+
+  <section class="demo-carousel">
+    <h3>Demo 1: .ofc-slide クラスなし（自動付与のテスト）</h3>
+    <p class="demo-info">要素に .ofc-slide クラスが明示的に指定されていません</p>
+    <p class="demo-info" style="color: #999;">期待: 自動的に .ofc-slide が付与され、正常に動作</p>
+    <section class="ofcarousel" id="carousel1" aria-roledescription="carousel">
+      <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div>1</div>
+          <div>2</div>
+          <div>3</div>
+          <div>4</div>
+          <div>5</div>
+        </div>
+      </div>
+      <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Demo 2: 混在パターン（一部のみ .ofc-slide あり）</h3>
+    <p class="demo-info">一部の要素だけに .ofc-slide クラスが指定されています</p>
+    <p class="demo-info" style="color: #999;">期待: クラスがない要素にのみ自動付与</p>
+    <section class="ofcarousel" id="carousel2" style="--ofc-items-visible: 2;">
+      <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">A</div>
+          <div>B</div>
+          <div class="ofc-slide">C</div>
+          <div>D</div>
+          <div>E</div>
+        </div>
+      </div>
+      <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Demo 3: 従来通り .ofc-slide クラスあり（後方互換性の確認）</h3>
+    <p class="demo-info">すべての要素に .ofc-slide クラスが明示的に指定されています</p>
+    <p class="demo-info" style="color: #999;">期待: 従来通り正常に動作</p>
+    <section class="ofcarousel" id="carousel3" aria-roledescription="carousel">
+      <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">α</div>
+          <div class="ofc-slide">β</div>
+          <div class="ofc-slide">γ</div>
+          <div class="ofc-slide">δ</div>
+        </div>
+      </div>
+      <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Demo 4: infinite: false でクラスなし</h3>
+    <p class="demo-info">infinite: false モードでもクラスが自動付与されることを確認</p>
+    <section class="ofcarousel" id="carousel4" style="--ofc-items-visible: 2;">
+      <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div>1</div>
+          <div>2</div>
+          <div>3</div>
+          <div>4</div>
+        </div>
+      </div>
+      <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+    </section>
+  </section>
+
+  <div id="result" class="note" style="display:none;"></div>
+
+  <script src="ofcarousel.js"></script>
+  <script>
+    console.log('Testing automatic .ofc-slide class addition...');
+
+    // Demo 1: クラスなし
+    const c1 = new OverflowCarousel('#carousel1', {});
+    
+    // Demo 2: 混在
+    const c2 = new OverflowCarousel('#carousel2', { peekRatio: 0.15 });
+    
+    // Demo 3: クラスあり（後方互換性）
+    const c3 = new OverflowCarousel('#carousel3', {});
+    
+    // Demo 4: infinite: false
+    const c4 = new OverflowCarousel('#carousel4', { peekRatio: 0.15, infinite: false });
+
+    // Verify classes were added
+    setTimeout(() => {
+      const results = [];
+      
+      // Check carousel 1
+      const track1 = document.querySelector('#carousel1 .ofc-track');
+      const children1 = Array.from(track1.children);
+      const allHaveClass1 = children1.every(child => child.classList.contains('ofc-slide'));
+      results.push(`Demo 1: ${allHaveClass1 ? '✓' : '✗'} すべての要素に .ofc-slide が付与されました (${children1.length}個)`);
+      
+      // Check carousel 2
+      const track2 = document.querySelector('#carousel2 .ofc-track');
+      const children2 = Array.from(track2.children);
+      const allHaveClass2 = children2.every(child => child.classList.contains('ofc-slide'));
+      results.push(`Demo 2: ${allHaveClass2 ? '✓' : '✗'} すべての要素に .ofc-slide が付与されました (${children2.length}個)`);
+      
+      // Check carousel 3
+      const track3 = document.querySelector('#carousel3 .ofc-track');
+      const children3 = Array.from(track3.children);
+      const allHaveClass3 = children3.every(child => child.classList.contains('ofc-slide'));
+      results.push(`Demo 3: ${allHaveClass3 ? '✓' : '✗'} 既存の .ofc-slide が保持されました (${children3.length}個)`);
+      
+      // Check carousel 4
+      const track4 = document.querySelector('#carousel4 .ofc-track');
+      const children4 = Array.from(track4.children);
+      const allHaveClass4 = children4.every(child => child.classList.contains('ofc-slide'));
+      results.push(`Demo 4: ${allHaveClass4 ? '✓' : '✗'} infinite: false でも .ofc-slide が付与されました (${children4.length}個)`);
+      
+      const resultDiv = document.getElementById('result');
+      const allPassed = results.every(r => r.includes('✓'));
+      resultDiv.className = allPassed ? 'note success' : 'note';
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `<strong>検証結果:</strong><br>${results.join('<br>')}`;
+      
+      console.log('Test results:', results);
+    }, 500);
+
+    console.log('All test carousels initialized.');
+  </script>
+</body>
+</html>

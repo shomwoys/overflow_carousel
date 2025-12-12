@@ -73,9 +73,22 @@ class OverflowCarousel {
     });
   }
 
+  _ensureSlideClasses() {
+    // .ofc-track の直下の要素に .ofc-slide クラスがない場合、自動的に付与する
+    if (!this.track) return;
+    
+    const children = Array.from(this.track.children);
+    children.forEach(child => {
+      if (!child.classList.contains('ofc-slide')) {
+        child.classList.add('ofc-slide');
+      }
+    });
+  }
+
   _setupInfiniteLoop() {
     this.viewport = this.root.querySelector('.ofc-viewport');
     this.track = this.root.querySelector('.ofc-track');
+    this._ensureSlideClasses();
     const originalSlides = Array.from(this.track.querySelectorAll('.ofc-slide'));
 
     if (originalSlides.length === 0) {
@@ -151,6 +164,7 @@ class OverflowCarousel {
     // 最初と最後で余白を削除し、自然な見た目にする
     this.viewport = this.root.querySelector('.ofc-viewport');
     this.track = this.root.querySelector('.ofc-track');
+    this._ensureSlideClasses();
     const originalSlides = Array.from(this.track.querySelectorAll('.ofc-slide'));
 
     if (originalSlides.length === 0) {
