@@ -58,9 +58,9 @@ python3 -m http.server 8000
 </script>
 ```
 
-### 自動ラッピング機能
+### 自動クラス付与機能
 
-`.ofc-track` の直下の子要素に `.ofc-slide` クラスがない場合、自動的に `.ofc-slide` でラップされます。
+`.ofc-track` の直下の子要素に `.ofc-slide` クラスがない場合、自動的に `.ofc-slide` クラスが付与されます。
 
 ```html
 <!-- この記法でも動作します -->
@@ -70,11 +70,11 @@ python3 -m http.server 8000
   <div>Slide 3</div>
 </div>
 
-<!-- 自動的に以下のように変換されます -->
+<!-- 自動的に以下のようにクラスが付与されます -->
 <div class="ofc-track">
-  <div class="ofc-slide"><div>Slide 1</div></div>
-  <div class="ofc-slide"><div>Slide 2</div></div>
-  <div class="ofc-slide"><div>Slide 3</div></div>
+  <div class="ofc-slide">Slide 1</div>
+  <div class="ofc-slide">Slide 2</div>
+  <div class="ofc-slide">Slide 3</div>
 </div>
 ```
 

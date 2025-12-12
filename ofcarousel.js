@@ -96,11 +96,11 @@ class OverflowCarousel {
   }
 
   _ensureSlideElements() {
-    // Auto-wrap direct children of .ofc-track with .ofc-slide if they don't have it
+    // Add .ofc-slide class to direct children of .ofc-track if they don't have it
     if (!this.track) return;
     
     const directChildren = Array.from(this.track.children);
-    let wrapped = false;
+    let added = false;
     
     directChildren.forEach(child => {
       // Skip if already has .ofc-slide class
@@ -108,18 +108,13 @@ class OverflowCarousel {
         return;
       }
       
-      // Create a wrapper div with .ofc-slide class
-      const wrapper = document.createElement('div');
-      wrapper.className = 'ofc-slide';
-      
-      // Replace child with wrapper, then append child to wrapper
-      this.track.replaceChild(wrapper, child);
-      wrapper.appendChild(child);
-      wrapped = true;
+      // Add .ofc-slide class directly to the element
+      child.classList.add('ofc-slide');
+      added = true;
     });
     
-    if (wrapped) {
-      console.log('[OverflowCarousel] Auto-wrapped non-.ofc-slide children');
+    if (added) {
+      console.log('[OverflowCarousel] Added .ofc-slide class to elements');
     }
   }
 

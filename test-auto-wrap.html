@@ -46,15 +46,15 @@
 
     <h1>Auto-wrap Test - OverflowCarousel</h1>
     <p class="intro-text">
-      .ofc-track の直下の子要素が .ofc-slide でない場合、自動的に .ofc-slide でラップする機能のテスト
+      .ofc-track の直下の子要素が .ofc-slide でない場合、自動的に .ofc-slide クラスを付与する機能のテスト
     </p>
 
-    <!-- Test 1: Elements WITHOUT .ofc-slide class (should auto-wrap) -->
+    <!-- Test 1: Elements WITHOUT .ofc-slide class (should add class) -->
     <section class="demo-carousel">
-      <h2>Test 1: .ofc-slide なしの要素（自動ラップされるべき）</h2>
+      <h2>Test 1: .ofc-slide なしの要素（自動的にクラス付与されるべき）</h2>
       <p class="demo-info">
         .ofc-track の直下に div 要素を配置（.ofc-slide クラスなし）<br>
-        → 自動的に .ofc-slide でラップされる
+        → 自動的に .ofc-slide クラスが付与される
       </p>
       <section class="ofcarousel" id="test-auto-wrap" aria-roledescription="carousel">
         <div class="ofc-viewport">
@@ -74,12 +74,12 @@
       <div id="test1-result" class="test-result"></div>
     </section>
 
-    <!-- Test 2: Elements WITH .ofc-slide class (should NOT wrap) -->
+    <!-- Test 2: Elements WITH .ofc-slide class (should NOT modify) -->
     <section class="demo-carousel">
-      <h2>Test 2: .ofc-slide ありの要素（ラップされないべき）</h2>
+      <h2>Test 2: .ofc-slide ありの要素（変更されないべき）</h2>
       <p class="demo-info">
         従来通り .ofc-slide クラスを持つ要素<br>
-        → そのまま使用される（二重ラップされない）
+        → そのまま使用される（クラスが重複しない）
       </p>
       <section class="ofcarousel" id="test-normal" aria-roledescription="carousel">
         <div class="ofc-viewport">
@@ -104,7 +104,7 @@
       <h2>Test 3: 混在パターン（一部に .ofc-slide あり、一部なし）</h2>
       <p class="demo-info">
         .ofc-slide クラスを持つ要素と持たない要素が混在<br>
-        → .ofc-slide なしの要素のみラップされる
+        → .ofc-slide なしの要素のみクラスが付与される
       </p>
       <section class="ofcarousel" id="test-mixed" aria-roledescription="carousel">
         <div class="ofc-viewport">
@@ -128,8 +128,8 @@
     <section class="demo-carousel">
       <h2>Test 4: infinite: false でのテスト</h2>
       <p class="demo-info">
-        infinite: false オプションでも自動ラップが機能する<br>
-        → .ofc-slide なしの要素が自動ラップされる
+        infinite: false オプションでもクラス付与が機能する<br>
+        → .ofc-slide なしの要素にクラスが付与される
       </p>
       <section class="ofcarousel" id="test-no-infinite" aria-roledescription="carousel">
         <div class="ofc-viewport">
@@ -166,20 +166,20 @@
       const result1 = document.getElementById('test1-result');
       
       if (slides1.length > 0) {
-        // Check if items are properly wrapped
-        let allWrapped = true;
+        // Check if items have .ofc-slide class added directly (not wrapped)
+        let allHaveClass = true;
         slides1.forEach(slide => {
-          const testItem = slide.querySelector('.test-item');
-          if (!testItem) {
-            allWrapped = false;
+          // The element should have both .ofc-slide and .test-item classes
+          if (!slide.classList.contains('test-item')) {
+            allHaveClass = false;
           }
         });
         
-        if (allWrapped) {
-          result1.textContent = `✓ 成功: ${slides1.length} 個のスライドが検出され、すべて正しくラップされています`;
+        if (allHaveClass) {
+          result1.textContent = `✓ 成功: ${slides1.length} 個のスライドが検出され、すべて正しくクラスが付与されています`;
           result1.classList.remove('error');
         } else {
-          result1.textContent = '✗ エラー: 一部のスライドが正しくラップされていません';
+          result1.textContent = '✗ エラー: 一部のスライドが正しくクラス付与されていません';
           result1.classList.add('error');
         }
       } else {
@@ -200,19 +200,20 @@
       const slides2 = track2.querySelectorAll('.ofc-slide');
       const result2 = document.getElementById('test2-result');
       
-      // Count how many levels deep the .test-item is
-      let doubleWrapped = false;
+      // Verify elements have both .ofc-slide and .test-item on the same element
+      let allCorrect = true;
       slides2.forEach(slide => {
-        if (slide.querySelector('.ofc-slide')) {
-          doubleWrapped = true;
+        // Should have .test-item on the same element, not wrapped
+        if (!slide.classList.contains('test-item')) {
+          allCorrect = false;
         }
       });
       
-      if (!doubleWrapped && slides2.length > 0) {
-        result2.textContent = `✓ 成功: ${slides2.length} 個のスライドが検出され、二重ラップされていません`;
+      if (allCorrect && slides2.length > 0) {
+        result2.textContent = `✓ 成功: ${slides2.length} 個のスライドが検出され、クラスが正しく保持されています`;
         result2.classList.remove('error');
       } else {
-        result2.textContent = '✗ エラー: スライドが二重にラップされています';
+        result2.textContent = '✗ エラー: スライドの構造が正しくありません';
         result2.classList.add('error');
       }
     }, 100);
@@ -232,21 +233,19 @@
       // With infinite: true, slides are cloned (3x original count)
       // So we expect 15 slides (5 original × 3)
       if (slides3.length === 15) {
-        // Verify all slides have content (either as child or on the slide itself)
-        let allHaveContent = true;
+        // Verify all slides have .test-item class (now added directly, not wrapped)
+        let allHaveTestItem = true;
         slides3.forEach(slide => {
-          const hasChildTestItem = slide.querySelector('.test-item') !== null;
-          const isSelfTestItem = slide.classList.contains('test-item');
-          if (!hasChildTestItem && !isSelfTestItem) {
-            allHaveContent = false;
+          if (!slide.classList.contains('test-item')) {
+            allHaveTestItem = false;
           }
         });
         
-        if (allHaveContent) {
-          result3.textContent = `✓ 成功: ${slides3.length} 個のスライド（5個 × 3 for infinite）が検出されました（混在パターンが正しく処理されました）`;
+        if (allHaveTestItem) {
+          result3.textContent = `✓ 成功: ${slides3.length} 個のスライド（5個 × 3 for infinite）が検出され、すべて正しくクラスが付与されています`;
           result3.classList.remove('error');
         } else {
-          result3.textContent = '✗ エラー: 一部のスライドにコンテンツがありません';
+          result3.textContent = '✗ エラー: 一部のスライドに .test-item クラスがありません';
           result3.classList.add('error');
         }
       } else {
@@ -268,19 +267,19 @@
       const result4 = document.getElementById('test4-result');
       
       if (slides4.length === 5) {
-        let allWrapped = true;
+        let allHaveClass = true;
         slides4.forEach(slide => {
-          const testItem = slide.querySelector('.test-item');
-          if (!testItem) {
-            allWrapped = false;
+          // Check if .test-item class is on the same element as .ofc-slide
+          if (!slide.classList.contains('test-item')) {
+            allHaveClass = false;
           }
         });
         
-        if (allWrapped) {
-          result4.textContent = `✓ 成功: infinite: false でも ${slides4.length} 個のスライドが正しくラップされています`;
+        if (allHaveClass) {
+          result4.textContent = `✓ 成功: infinite: false でも ${slides4.length} 個のスライドに正しくクラスが付与されています`;
           result4.classList.remove('error');
         } else {
-          result4.textContent = '✗ エラー: 一部のスライドが正しくラップされていません';
+          result4.textContent = '✗ エラー: 一部のスライドが正しくクラス付与されていません';
           result4.classList.add('error');
         }
       } else {
