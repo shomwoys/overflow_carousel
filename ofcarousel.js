@@ -95,9 +95,41 @@ class OverflowCarousel {
     });
   }
 
+  _ensureSlideElements() {
+    // Auto-wrap direct children of .ofc-track with .ofc-slide if they don't have it
+    if (!this.track) return;
+    
+    const directChildren = Array.from(this.track.children);
+    let wrapped = false;
+    
+    directChildren.forEach(child => {
+      // Skip if already has .ofc-slide class
+      if (child.classList.contains('ofc-slide')) {
+        return;
+      }
+      
+      // Create a wrapper div with .ofc-slide class
+      const wrapper = document.createElement('div');
+      wrapper.className = 'ofc-slide';
+      
+      // Replace child with wrapper, then append child to wrapper
+      this.track.replaceChild(wrapper, child);
+      wrapper.appendChild(child);
+      wrapped = true;
+    });
+    
+    if (wrapped) {
+      console.log('[OverflowCarousel] Auto-wrapped non-.ofc-slide children');
+    }
+  }
+
   _setupInfiniteLoop() {
     this.viewport = this.root.querySelector('.ofc-viewport');
     this.track = this.root.querySelector('.ofc-track');
+    
+    // Auto-wrap direct children that don't have .ofc-slide class
+    this._ensureSlideElements();
+    
     const originalSlides = Array.from(this.track.querySelectorAll('.ofc-slide'));
 
     if (originalSlides.length === 0) {
@@ -173,6 +205,10 @@ class OverflowCarousel {
     // 最初と最後で余白を削除し、自然な見た目にする
     this.viewport = this.root.querySelector('.ofc-viewport');
     this.track = this.root.querySelector('.ofc-track');
+    
+    // Auto-wrap direct children that don't have .ofc-slide class
+    this._ensureSlideElements();
+    
     const originalSlides = Array.from(this.track.querySelectorAll('.ofc-slide'));
 
     if (originalSlides.length === 0) {

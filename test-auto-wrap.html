@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto-wrap Test - OverflowCarousel</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="ofcarousel.css">
+  <style>
+    .test-item {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      border-radius: 8px;
+    }
+    .demo-carousel {
+      margin-bottom: 3rem;
+    }
+    .demo-info {
+      background: #f0f0f0;
+      padding: 1rem;
+      border-left: 4px solid #667eea;
+      margin-bottom: 1rem;
+    }
+    .test-result {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+    }
+    .test-result.error {
+      background: #ffebee;
+      border-left-color: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="examples-nav">
+      <a href="index.html" class="back-link">← デモ一覧へ</a>
+    </nav>
+
+    <h1>Auto-wrap Test - OverflowCarousel</h1>
+    <p class="intro-text">
+      .ofc-track の直下の子要素が .ofc-slide でない場合、自動的に .ofc-slide でラップする機能のテスト
+    </p>
+
+    <!-- Test 1: Elements WITHOUT .ofc-slide class (should auto-wrap) -->
+    <section class="demo-carousel">
+      <h2>Test 1: .ofc-slide なしの要素（自動ラップされるべき）</h2>
+      <p class="demo-info">
+        .ofc-track の直下に div 要素を配置（.ofc-slide クラスなし）<br>
+        → 自動的に .ofc-slide でラップされる
+      </p>
+      <section class="ofcarousel" id="test-auto-wrap" aria-roledescription="carousel">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="test-item">Item 1</div>
+            <div class="test-item">Item 2</div>
+            <div class="test-item">Item 3</div>
+            <div class="test-item">Item 4</div>
+            <div class="test-item">Item 5</div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+      <div id="test1-result" class="test-result"></div>
+    </section>
+
+    <!-- Test 2: Elements WITH .ofc-slide class (should NOT wrap) -->
+    <section class="demo-carousel">
+      <h2>Test 2: .ofc-slide ありの要素（ラップされないべき）</h2>
+      <p class="demo-info">
+        従来通り .ofc-slide クラスを持つ要素<br>
+        → そのまま使用される（二重ラップされない）
+      </p>
+      <section class="ofcarousel" id="test-normal" aria-roledescription="carousel">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide test-item">A</div>
+            <div class="ofc-slide test-item">B</div>
+            <div class="ofc-slide test-item">C</div>
+            <div class="ofc-slide test-item">D</div>
+            <div class="ofc-slide test-item">E</div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+      <div id="test2-result" class="test-result"></div>
+    </section>
+
+    <!-- Test 3: Mixed elements (some with, some without .ofc-slide) -->
+    <section class="demo-carousel">
+      <h2>Test 3: 混在パターン（一部に .ofc-slide あり、一部なし）</h2>
+      <p class="demo-info">
+        .ofc-slide クラスを持つ要素と持たない要素が混在<br>
+        → .ofc-slide なしの要素のみラップされる
+      </p>
+      <section class="ofcarousel" id="test-mixed" aria-roledescription="carousel">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide test-item">✓ 1</div>
+            <div class="test-item">✗ 2</div>
+            <div class="ofc-slide test-item">✓ 3</div>
+            <div class="test-item">✗ 4</div>
+            <div class="test-item">✗ 5</div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+      <div id="test3-result" class="test-result"></div>
+    </section>
+
+    <!-- Test 4: With infinite: false -->
+    <section class="demo-carousel">
+      <h2>Test 4: infinite: false でのテスト</h2>
+      <p class="demo-info">
+        infinite: false オプションでも自動ラップが機能する<br>
+        → .ofc-slide なしの要素が自動ラップされる
+      </p>
+      <section class="ofcarousel" id="test-no-infinite" aria-roledescription="carousel">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="test-item">α</div>
+            <div class="test-item">β</div>
+            <div class="test-item">γ</div>
+            <div class="test-item">δ</div>
+            <div class="test-item">ε</div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+      <div id="test4-result" class="test-result"></div>
+    </section>
+  </main>
+
+  <script src="ofcarousel.js"></script>
+  <script>
+    // Test 1: Auto-wrap
+    const test1 = new OverflowCarousel('#test-auto-wrap', {
+      itemsVisible: 3,
+      aspect: 16/9,
+      infinite: true
+    });
+    
+    // Verify test 1
+    setTimeout(() => {
+      const track1 = document.querySelector('#test-auto-wrap .ofc-track');
+      const slides1 = track1.querySelectorAll('.ofc-slide');
+      const result1 = document.getElementById('test1-result');
+      
+      if (slides1.length > 0) {
+        // Check if items are properly wrapped
+        let allWrapped = true;
+        slides1.forEach(slide => {
+          const testItem = slide.querySelector('.test-item');
+          if (!testItem) {
+            allWrapped = false;
+          }
+        });
+        
+        if (allWrapped) {
+          result1.textContent = `✓ 成功: ${slides1.length} 個のスライドが検出され、すべて正しくラップされています`;
+          result1.classList.remove('error');
+        } else {
+          result1.textContent = '✗ エラー: 一部のスライドが正しくラップされていません';
+          result1.classList.add('error');
+        }
+      } else {
+        result1.textContent = '✗ エラー: .ofc-slide が見つかりません';
+        result1.classList.add('error');
+      }
+    }, 100);
+
+    // Test 2: Normal (with .ofc-slide)
+    const test2 = new OverflowCarousel('#test-normal', {
+      itemsVisible: 3,
+      aspect: 16/9,
+      infinite: true
+    });
+    
+    setTimeout(() => {
+      const track2 = document.querySelector('#test-normal .ofc-track');
+      const slides2 = track2.querySelectorAll('.ofc-slide');
+      const result2 = document.getElementById('test2-result');
+      
+      // Count how many levels deep the .test-item is
+      let doubleWrapped = false;
+      slides2.forEach(slide => {
+        if (slide.querySelector('.ofc-slide')) {
+          doubleWrapped = true;
+        }
+      });
+      
+      if (!doubleWrapped && slides2.length > 0) {
+        result2.textContent = `✓ 成功: ${slides2.length} 個のスライドが検出され、二重ラップされていません`;
+        result2.classList.remove('error');
+      } else {
+        result2.textContent = '✗ エラー: スライドが二重にラップされています';
+        result2.classList.add('error');
+      }
+    }, 100);
+
+    // Test 3: Mixed
+    const test3 = new OverflowCarousel('#test-mixed', {
+      itemsVisible: 3,
+      aspect: 16/9,
+      infinite: true
+    });
+    
+    setTimeout(() => {
+      const track3 = document.querySelector('#test-mixed .ofc-track');
+      const slides3 = track3.querySelectorAll('.ofc-slide');
+      const result3 = document.getElementById('test3-result');
+      
+      // With infinite: true, slides are cloned (3x original count)
+      // So we expect 15 slides (5 original × 3)
+      if (slides3.length === 15) {
+        // Verify all slides have content (either as child or on the slide itself)
+        let allHaveContent = true;
+        slides3.forEach(slide => {
+          const hasChildTestItem = slide.querySelector('.test-item') !== null;
+          const isSelfTestItem = slide.classList.contains('test-item');
+          if (!hasChildTestItem && !isSelfTestItem) {
+            allHaveContent = false;
+          }
+        });
+        
+        if (allHaveContent) {
+          result3.textContent = `✓ 成功: ${slides3.length} 個のスライド（5個 × 3 for infinite）が検出されました（混在パターンが正しく処理されました）`;
+          result3.classList.remove('error');
+        } else {
+          result3.textContent = '✗ エラー: 一部のスライドにコンテンツがありません';
+          result3.classList.add('error');
+        }
+      } else {
+        result3.textContent = `✗ エラー: 期待されるスライド数は15（5個 × 3）ですが、${slides3.length}個が検出されました`;
+        result3.classList.add('error');
+      }
+    }, 100);
+
+    // Test 4: infinite: false
+    const test4 = new OverflowCarousel('#test-no-infinite', {
+      itemsVisible: 3,
+      aspect: 16/9,
+      infinite: false
+    });
+    
+    setTimeout(() => {
+      const track4 = document.querySelector('#test-no-infinite .ofc-track');
+      const slides4 = track4.querySelectorAll('.ofc-slide');
+      const result4 = document.getElementById('test4-result');
+      
+      if (slides4.length === 5) {
+        let allWrapped = true;
+        slides4.forEach(slide => {
+          const testItem = slide.querySelector('.test-item');
+          if (!testItem) {
+            allWrapped = false;
+          }
+        });
+        
+        if (allWrapped) {
+          result4.textContent = `✓ 成功: infinite: false でも ${slides4.length} 個のスライドが正しくラップされています`;
+          result4.classList.remove('error');
+        } else {
+          result4.textContent = '✗ エラー: 一部のスライドが正しくラップされていません';
+          result4.classList.add('error');
+        }
+      } else {
+        result4.textContent = `✗ エラー: 期待されるスライド数は5ですが、${slides4.length}個が検出されました`;
+        result4.classList.add('error');
+      }
+    }, 100);
+  </script>
+</body>
+</html>

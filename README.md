@@ -58,6 +58,26 @@ python3 -m http.server 8000
 </script>
 ```
 
+### 自動ラッピング機能
+
+`.ofc-track` の直下の子要素に `.ofc-slide` クラスがない場合、自動的に `.ofc-slide` でラップされます。
+
+```html
+<!-- この記法でも動作します -->
+<div class="ofc-track">
+  <div>Slide 1</div>
+  <div>Slide 2</div>
+  <div>Slide 3</div>
+</div>
+
+<!-- 自動的に以下のように変換されます -->
+<div class="ofc-track">
+  <div class="ofc-slide"><div>Slide 1</div></div>
+  <div class="ofc-slide"><div>Slide 2</div></div>
+  <div class="ofc-slide"><div>Slide 3</div></div>
+</div>
+```
+
 ## 実装の特徴
 
 ### CSS Scroll Snap ベース
