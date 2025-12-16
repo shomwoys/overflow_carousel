@@ -655,7 +655,8 @@ class OverflowCarousel {
     this.root.style.setProperty('--ofc-peek', this._peekPx + 'px');
 
     // gap値も再計算（%やvwの場合に対応）
-    this._gapPx = this._parsePixels(this.options.gap);
+    const viewportWidth = this.viewport.offsetWidth;
+    this._gapPx = this._parsePixels(this.options.gap, viewportWidth);
 
     // スクロール位置を現在のスライドインデックスに合わせて調整
     // requestAnimationFrame で次のフレームで実行（レイアウト計算後）
