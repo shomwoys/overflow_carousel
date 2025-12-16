@@ -638,16 +638,17 @@ class OverflowCarousel {
     // 現在のスライドインデックスを保存
     const currentIndex = this._getCurrentIndex();
 
+    // viewport幅を取得
+    const viewportWidth = this.viewport.offsetWidth;
+
     // peekPx を再計算
     if (this.options.peekRatio !== undefined) {
       // peekRatio: viewport幅と連立方程式で計算
-      const viewportWidth = this.viewport.offsetWidth;
       const itemsVisible = this.options.itemsVisible;
       const peekRatio = this.options.peekRatio;
       this._peekPx = (viewportWidth * peekRatio) / (itemsVisible + 2 * peekRatio);
     } else {
       // peek: 文字列値を使用（px, %, vw など）
-      const viewportWidth = this.viewport.offsetWidth;
       this._peekPx = this._parsePixels(this.options.peek, viewportWidth);
     }
 
@@ -655,7 +656,6 @@ class OverflowCarousel {
     this.root.style.setProperty('--ofc-peek', this._peekPx + 'px');
 
     // gap値も再計算（%やvwの場合に対応）
-    const viewportWidth = this.viewport.offsetWidth;
     this._gapPx = this._parsePixels(this.options.gap, viewportWidth);
 
     // スクロール位置を現在のスライドインデックスに合わせて調整
