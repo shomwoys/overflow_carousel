@@ -30,27 +30,43 @@ class OverflowCarousel {
       return;
     }
 
-    // Read CSS variables from inline style (highest priority)
-    const cssVarItemsVisible = this.root.style.getPropertyValue('--ofc-items-visible').trim();
-    const cssVarPeek = this.root.style.getPropertyValue('--ofc-peek').trim();
-    const cssVarGap = this.root.style.getPropertyValue('--ofc-gap').trim();
-    const cssVarAspect = this.root.style.getPropertyValue('--ofc-aspect-ratio').trim();
+    // Read CSS variables from computed style (including :root defaults)
+    const computedStyle = getComputedStyle(this.root);
+    const cssVarItemsVisible = computedStyle.getPropertyValue('--ofc-items-visible').trim();
+    const cssVarPeek = computedStyle.getPropertyValue('--ofc-peek').trim();
+    const cssVarGap = computedStyle.getPropertyValue('--ofc-gap').trim();
+    const cssVarAspect = computedStyle.getPropertyValue('--ofc-aspect-ratio').trim();
 
-    // Options with defaults (CSS variables override defaults, but JS options override CSS variables)
+    // Options: CSS variables as defaults, JS options override them
     this.options = {
-      itemsVisible: cssVarItemsVisible ? parseInt(cssVarItemsVisible) : 1,
+      itemsVisible: parseInt(cssVarItemsVisible) || 3,
       peek: cssVarPeek || '60px',
-      peekRatio: undefined,  // If set, peek = slideWidth * peekRatio
-      gap: cssVarGap || '16px',
-      aspect: cssVarAspect ? parseFloat(cssVarAspect) : 1,
+      peekRatio: undefined,  // If set, peek will be calculated dynamically
+      gap: cssVarGap || '5px',
+      aspect: parseFloat(cssVarAspect) || 1.78,
       infinite: true,
+      dots: false,
+      autoplay: false,
+      autoplayInterval: 3000,
+      pauseOnHover: true,
+      pauseOnFocus: true,
+      pauseOnVisibility: true,
       ...options  // JS options have highest priority
     };
 
-    this.root.style.setProperty('--ofc-items-visible', this.options.itemsVisible.toString());
-    this.root.style.setProperty('--ofc-peek', this.options.peek);
-    this.root.style.setProperty('--ofc-gap', this.options.gap);
-    this.root.style.setProperty('--ofc-aspect-ratio', this.options.aspect.toString());
+    // Apply CSS variables only if JS options explicitly override them
+    if (options.itemsVisible !== undefined) {
+      this.root.style.setProperty('--ofc-items-visible', this.options.itemsVisible.toString());
+    }
+    if (options.peek !== undefined) {
+      this.root.style.setProperty('--ofc-peek', this.options.peek);
+    }
+    if (options.gap !== undefined) {
+      this.root.style.setProperty('--ofc-gap', this.options.gap);
+    }
+    if (options.aspect !== undefined) {
+      this.root.style.setProperty('--ofc-aspect-ratio', this.options.aspect.toString());
+    }
     
     // ピクセル値をキャッシュ（後で viewport 利用可能後に再計算）
     this._gapPx = this._parsePixels(this.options.gap);
@@ -64,8 +80,14 @@ class OverflowCarousel {
       this._setupNonInfiniteMode();
     }
 
+    // dots（インジケーター）
+    this._setupDots();
+
     // コントロール（ボタン・キーボード）の設定
     this._setupControls();
+
+    // オートプレイ
+    this._setupAutoplay();
 
     console.log('[OverflowCarousel] Initialized:', {
       id: this.root.id,
@@ -73,9 +95,36 @@ class OverflowCarousel {
     });
   }
 
+  _ensureSlideElements() {
+    // Add .ofc-slide class to direct children of .ofc-track if they don't have it
+    if (!this.track) return;
+    
+    const directChildren = Array.from(this.track.children);
+    let added = false;
+    
+    directChildren.forEach(child => {
+      // Skip if already has .ofc-slide class
+      if (child.classList.contains('ofc-slide')) {
+        return;
+      }
+      
+      // Add .ofc-slide class directly to the element
+      child.classList.add('ofc-slide');
+      added = true;
+    });
+    
+    if (added) {
+      console.log('[OverflowCarousel] Added .ofc-slide class to elements');
+    }
+  }
+
   _setupInfiniteLoop() {
     this.viewport = this.root.querySelector('.ofc-viewport');
     this.track = this.root.querySelector('.ofc-track');
+    
+    // Auto-wrap direct children that don't have .ofc-slide class
+    this._ensureSlideElements();
+    
     const originalSlides = Array.from(this.track.querySelectorAll('.ofc-slide'));
 
     if (originalSlides.length === 0) {
@@ -151,6 +200,10 @@ class OverflowCarousel {
     // 最初と最後で余白を削除し、自然な見た目にする
     this.viewport = this.root.querySelector('.ofc-viewport');
     this.track = this.root.querySelector('.ofc-track');
+    
+    // Auto-wrap direct children that don't have .ofc-slide class
+    this._ensureSlideElements();
+    
     const originalSlides = Array.from(this.track.querySelectorAll('.ofc-slide'));
 
     if (originalSlides.length === 0) {
@@ -235,6 +288,9 @@ class OverflowCarousel {
           this.viewport.style.scrollBehavior = prevBehavior;
           this._isAdjusting = false;
         }
+
+        // dots のアクティブ状態を更新（必要な場合のみ実行）
+        this._updateActiveDot(this._getCurrentIndex());
       }, 100);
     };
 
@@ -273,25 +329,222 @@ class OverflowCarousel {
     prevBtn && prevBtn.addEventListener('click', () => {
       const distance = calculateScrollDistance();
       viewport.scrollBy({ left: -distance, behavior: 'smooth' });
+      this._restartAutoplay();
     });
 
     // 次ボタン
     nextBtn && nextBtn.addEventListener('click', () => {
       const distance = calculateScrollDistance();
       viewport.scrollBy({ left: distance, behavior: 'smooth' });
+      this._restartAutoplay();
     });
 
-    // キーボード操作対応
+    // キーボード操作対応（carousel内のフォーカスのみ反応）
     this._keyboardListener = (e) => {
+      // carousel内にフォーカスがない場合は無視
+      if (!this.root.contains(document.activeElement)) return;
+      
       const distance = calculateScrollDistance();
       if (e.key === 'ArrowLeft') {
         viewport.scrollBy({ left: -distance, behavior: 'smooth' });
+        this._restartAutoplay();
       }
       if (e.key === 'ArrowRight') {
         viewport.scrollBy({ left: distance, behavior: 'smooth' });
+        this._restartAutoplay();
       }
     };
     document.addEventListener('keydown', this._keyboardListener);
+  }
+
+  _setupDots() {
+    if (!this.options.dots) return;
+    this.viewport = this.viewport || this.root.querySelector('.ofc-viewport');
+    this.track = this.track || this.root.querySelector('.ofc-track');
+    if (!this.viewport || !this.track) return;
+
+    const count = this._originalCount || this.track.querySelectorAll('.ofc-slide').length;
+    if (!count) return;
+
+    this._dotButtons = [];
+    const container = document.createElement('div');
+    container.className = 'ofc-dots';
+    container.setAttribute('role', 'tablist');
+    container.setAttribute('aria-label', 'Carousel navigation dots');
+
+    for (let i = 0; i < count; i++) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'ofc-dot';
+      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      dot.addEventListener('click', () => {
+        this._scrollToIndex(i);
+        this._restartAutoplay();
+      });
+      container.appendChild(dot);
+      this._dotButtons.push(dot);
+    }
+
+    // .ofc-navs 内に dots を配置
+    const navsContainer = this.root.querySelector('.ofc-navs');
+    if (navsContainer) {
+      const prevBtn = navsContainer.querySelector('.ofc-prev');
+      const nextBtn = navsContainer.querySelector('.ofc-next');
+      // prevBtn と nextBtn の間に dots を挿入
+      if (nextBtn) {
+        navsContainer.insertBefore(container, nextBtn);
+      } else {
+        navsContainer.appendChild(container);
+      }
+    } else {
+      this.root.appendChild(container);
+    }
+
+    this._attachActiveTracker();
+    this._updateActiveDot(this._getCurrentIndex());
+  }
+
+  _attachActiveTracker() {
+    if (!this.viewport || this._activeTrackerAttached) return;
+    let ticking = false;
+    this._onActiveScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        this._updateActiveDot(this._getCurrentIndex());
+        ticking = false;
+      });
+    };
+    this.viewport.addEventListener('scroll', this._onActiveScroll, { passive: true });
+    this._activeTrackerAttached = true;
+  }
+
+  _updateActiveDot(index) {
+    if (!this._dotButtons || !this._dotButtons.length) return;
+    this._dotButtons.forEach((dot, i) => {
+      if (i === index) {
+        dot.classList.add('is-active');
+        dot.setAttribute('aria-current', 'true');
+      } else {
+        dot.classList.remove('is-active');
+        dot.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  _getCurrentIndex() {
+    if (!this.viewport) return 0;
+    const step = this._getStep();
+    if (!step || !this._originalCount) return 0;
+    const left = this.viewport.scrollLeft;
+
+    if (this.options.infinite) {
+      const base = step * this._originalCount - this._peekPx;
+      const raw = Math.round((left - base) / step);
+      const normalized = ((raw % this._originalCount) + this._originalCount) % this._originalCount;
+      return normalized;
+    }
+
+    const raw = Math.round(left / step);
+    return Math.min(this._originalCount - 1, Math.max(0, raw));
+  }
+
+  _scrollToIndex(index, behavior = 'smooth') {
+    if (!this.viewport) return;
+    const step = this._getStep();
+    if (!step) return;
+
+    const clampedIndex = Math.min(this._originalCount - 1, Math.max(0, index));
+    const base = this.options.infinite ? step * this._originalCount - this._peekPx : 0;
+    const target = base + step * clampedIndex;
+    this.viewport.scrollTo({ left: target, behavior });
+  }
+
+  _scrollByStep(direction = 1, behavior = 'smooth') {
+    if (!this.viewport || !this.track) return;
+    const step = this._getStep();
+    if (!step) return;
+
+    const target = this.viewport.scrollLeft + step * direction;
+    const maxLeft = this.track.scrollWidth - this.viewport.clientWidth;
+    const clamped = Math.min(Math.max(0, target), maxLeft);
+
+    // 端に達した non-infinite のときは停止
+    if (!this.options.infinite && Math.abs(clamped - this.viewport.scrollLeft) < 1) {
+      this._clearAutoplayTimer();
+      return;
+    }
+
+    this.viewport.scrollTo({ left: clamped, behavior });
+  }
+
+  _setupAutoplay() {
+    if (!this.options.autoplay || !this.viewport) return;
+
+    this._pauseReasons = new Set();
+
+    if (this.options.pauseOnHover) {
+      this._onMouseEnter = () => {
+        this._pauseReasons.add('hover');
+        this._clearAutoplayTimer();
+      };
+      this._onMouseLeave = () => {
+        this._pauseReasons.delete('hover');
+        this._startAutoplayTimer();
+      };
+      this.root.addEventListener('mouseenter', this._onMouseEnter);
+      this.root.addEventListener('mouseleave', this._onMouseLeave);
+    }
+
+    if (this.options.pauseOnFocus) {
+      this._onFocusIn = () => {
+        this._pauseReasons.add('focus');
+        this._clearAutoplayTimer();
+      };
+      this._onFocusOut = () => {
+        this._pauseReasons.delete('focus');
+        this._startAutoplayTimer();
+      };
+      this.root.addEventListener('focusin', this._onFocusIn);
+      this.root.addEventListener('focusout', this._onFocusOut);
+    }
+
+    if (this.options.pauseOnVisibility) {
+      this._onVisibilityChange = () => {
+        if (document.hidden) {
+          this._pauseReasons.add('visibility');
+          this._clearAutoplayTimer();
+        } else {
+          this._pauseReasons.delete('visibility');
+          this._startAutoplayTimer();
+        }
+      };
+      document.addEventListener('visibilitychange', this._onVisibilityChange);
+    }
+
+    this._startAutoplayTimer();
+  }
+
+  _startAutoplayTimer() {
+    if (!this.options.autoplay) return;
+    if (this._pauseReasons && this._pauseReasons.size > 0) return;
+    this._clearAutoplayTimer();
+    this._autoplayTimer = setInterval(() => {
+      this._scrollByStep(1);
+    }, this.options.autoplayInterval);
+  }
+
+  _clearAutoplayTimer() {
+    if (this._autoplayTimer) {
+      clearInterval(this._autoplayTimer);
+      this._autoplayTimer = null;
+    }
+  }
+
+  _restartAutoplay() {
+    if (!this.options.autoplay) return;
+    if (this._pauseReasons && this._pauseReasons.size > 0) return;
+    this._startAutoplayTimer();
   }
 
   _parsePixels(value, base = window.innerWidth) {
@@ -313,6 +566,15 @@ class OverflowCarousel {
     // イベントリスナーをクリーンアップ
     document.removeEventListener('keydown', this._keyboardListener);
     this.viewport && this._onScroll && this.viewport.removeEventListener('scroll', this._onScroll);
+
+    this.viewport && this._onActiveScroll && this.viewport.removeEventListener('scroll', this._onActiveScroll);
+    this.root && this._onMouseEnter && this.root.removeEventListener('mouseenter', this._onMouseEnter);
+    this.root && this._onMouseLeave && this.root.removeEventListener('mouseleave', this._onMouseLeave);
+    this.root && this._onFocusIn && this.root.removeEventListener('focusin', this._onFocusIn);
+    this.root && this._onFocusOut && this.root.removeEventListener('focusout', this._onFocusOut);
+    this._onVisibilityChange && document.removeEventListener('visibilitychange', this._onVisibilityChange);
+
+    this._clearAutoplayTimer();
   }
 }
 

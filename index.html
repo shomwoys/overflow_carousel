@@ -4,85 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Overflow Carousel — デモ</title>
+  <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="ofcarousel.css">
-  <style>
-    .page {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-    }
-    h1 {
-      margin-bottom: 2rem;
-      font-size: 2rem;
-    }
-    h2 {
-      margin-top: 3rem;
-      margin-bottom: 1rem;
-      font-size: 1.5rem;
-      color: #333;
-      border-bottom: 2px solid #e0e0e0;
-      padding-bottom: 0.5rem;
-    }
-    h3 {
-      margin-top: 2rem;
-      margin-bottom: 0.5rem;
-      font-size: 1.1rem;
-      color: #555;
-    }
-    .demo-carousel {
-      margin-bottom: 3rem;
-    }
-    .demo-info {
-      margin-top: 0.5rem;
-      margin-bottom: 1rem;
-      color: #666;
-      font-size: 0.9rem;
-    }
-    /* 親コンテナ幅に合わせるデモ用 */
-    .container-wrapper {
-      background: #f9f9f9;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      border: 1px dashed #ccc;
-    }
-    .full-width-container {
-      max-width: 100%;
-    }
-    .half-width-container {
-      max-width: 50%;
-    }
-    /* viewportの幅を親に合わせる */
-    .ofcarousel.flex-width .ofc-viewport {
-      max-width: 100%;
-    }
-    .test-link {
-      display: inline-block;
-      margin-bottom: 2rem;
-      padding: 0.5rem 1rem;
-      background: #28a745;
-      color: white;
-      text-decoration: none;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-    .test-link:hover {
-      background: #218838;
-    }
-  </style>
 </head>
 <body>
   <main class="page">
     <h1>Overflow Carousel — デモ</h1>
-    <a href="test-infinite.html" class="test-link">→ infinite オプション検証テストを見る</a>
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+      <a href="https://github.com/shomwoys/overflow_carousel" target="_blank" class="test-link" style="background: #6c757d;">📖 GitHub を見る</a>
+      <a href="examples.html" class="test-link" style="background: #6f42c1;">→ 実用的な例を見る</a>
+      <a href="test-infinite.html" class="test-link">→ infinite オプション検証テストを見る</a>
+    </div>
 
-    <h2>基本パターン</h2>
+    <h2>基本パターン（デフォルト）</h2>
+    <p style="color: #666; margin-bottom: 1.5rem;">デフォルト設定: itemsVisible=3, aspect=16/9, gap=5px, infinite=true</p>
 
     <section class="demo-carousel">
-      <h3>Demo 1: Single item + peek (60px)</h3>
-      <p class="demo-info">itemsVisible: 1, peek: 60px, infinite: true</p>
+      <h3>Demo 1: デフォルト設定</h3>
+      <p class="demo-info">デフォルト値をそのまま使用</p>
       <section class="ofcarousel" id="carousel1" aria-roledescription="carousel">
-        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
         <div class="ofc-viewport">
           <div class="ofc-track">
             <div class="ofc-slide">1</div>
@@ -92,15 +32,41 @@
             <div class="ofc-slide">5</div>
           </div>
         </div>
-        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
       </section>
     </section>
 
     <section class="demo-carousel">
-      <h3>Demo 2: Three items + small peek (peekRatio 15%)</h3>
-      <p class="demo-info">itemsVisible: 3, peekRatio: 0.15 (item幅の15%), infinite: true</p>
-      <section class="ofcarousel" id="carousel2" aria-roledescription="carousel" style="--ofc-items-visible: 3;">
-        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <h3>Demo 1.5: 親コンテナ幅に合わせる（100%）</h3>
+      <p class="demo-info">viewport幅が親の大きさで決まるケース</p>
+      <div style="background: #f0f0f0; padding: 1rem; margin-bottom: 1rem; border: 2px dashed #999; max-width: 400px;">
+        <section class="ofcarousel" id="carousel1b" aria-roledescription="carousel">
+          <div class="ofc-viewport">
+            <div class="ofc-track">
+              <div class="ofc-slide">Full</div>
+              <div class="ofc-slide">Width</div>
+              <div class="ofc-slide">Demo</div>
+              <div class="ofc-slide">Parent</div>
+              <div class="ofc-slide">Size</div>
+            </div>
+          </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+                    <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+        </section>
+      </div>
+    </section>
+
+    <h2>itemsVisible のバリエーション</h2>
+
+    <section class="demo-carousel">
+      <h3>Demo 2: itemsVisible: 1</h3>
+      <p class="demo-info">1つのアイテムのみ表示</p>
+      <section class="ofcarousel" id="carousel2" aria-roledescription="carousel" style="--ofc-items-visible: 1;">
         <div class="ofc-viewport">
           <div class="ofc-track">
             <div class="ofc-slide">A</div>
@@ -110,34 +76,37 @@
             <div class="ofc-slide">E</div>
           </div>
         </div>
-        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
       </section>
     </section>
 
     <section class="demo-carousel">
-      <h3>Demo 3: Two items (JS options)</h3>
-      <p class="demo-info">itemsVisible: 2, peek: 40px (JS指定), infinite: true</p>
-      <section class="ofcarousel" id="carousel3" aria-roledescription="carousel">
-        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <h3>Demo 3: itemsVisible: 2</h3>
+      <p class="demo-info">2つのアイテムを表示</p>
+      <section class="ofcarousel" id="carousel3" aria-roledescription="carousel" style="--ofc-items-visible: 2;">
         <div class="ofc-viewport">
           <div class="ofc-track">
             <div class="ofc-slide">α</div>
             <div class="ofc-slide">β</div>
             <div class="ofc-slide">γ</div>
             <div class="ofc-slide">δ</div>
+            <div class="ofc-slide">ε</div>
           </div>
         </div>
-        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
       </section>
     </section>
 
-    <h2>peekRatio バリエーション</h2>
-
     <section class="demo-carousel">
-      <h3>Demo 4: peekRatio 0.05 (5%)</h3>
-      <p class="demo-info">itemsVisible: 3, peekRatio: 0.05, infinite: true</p>
-      <section class="ofcarousel" id="carousel4" aria-roledescription="carousel" style="--ofc-items-visible: 3;">
-        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <h3>Demo 4: itemsVisible: 4</h3>
+      <p class="demo-info">4つのアイテムを表示</p>
+      <section class="ofcarousel" id="carousel4" aria-roledescription="carousel" style="--ofc-items-visible: 4;">
         <div class="ofc-viewport">
           <div class="ofc-track">
             <div class="ofc-slide">1</div>
@@ -145,69 +114,41 @@
             <div class="ofc-slide">3</div>
             <div class="ofc-slide">4</div>
             <div class="ofc-slide">5</div>
+            <div class="ofc-slide">6</div>
           </div>
         </div>
-        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
       </section>
     </section>
 
-    <section class="demo-carousel">
-      <h3>Demo 5: peekRatio 0.25 (25%)</h3>
-      <p class="demo-info">itemsVisible: 2, peekRatio: 0.25, infinite: true</p>
-      <section class="ofcarousel" id="carousel5" aria-roledescription="carousel" style="--ofc-items-visible: 2;">
-        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
-        <div class="ofc-viewport">
-          <div class="ofc-track">
-            <div class="ofc-slide">A</div>
-            <div class="ofc-slide">B</div>
-            <div class="ofc-slide">C</div>
-            <div class="ofc-slide">D</div>
-          </div>
-        </div>
-        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
-      </section>
-    </section>
+    <h2>aspect（アスペクト比）のバリエーション</h2>
 
     <section class="demo-carousel">
-      <h3>Demo 6: peekRatio 0.5 (50%)</h3>
-      <p class="demo-info">itemsVisible: 1, peekRatio: 0.5, infinite: true</p>
-      <section class="ofcarousel" id="carousel6" aria-roledescription="carousel">
-        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <h3>Demo 5: aspect: 1 (正方形)</h3>
+      <p class="demo-info">itemsVisible: 3, aspect: 1/1</p>
+      <section class="ofcarousel" id="carousel5" aria-roledescription="carousel" style="--ofc-items-visible: 3; --ofc-aspect-ratio: 1;">
         <div class="ofc-viewport">
           <div class="ofc-track">
-            <div class="ofc-slide">1</div>
-            <div class="ofc-slide">2</div>
-            <div class="ofc-slide">3</div>
-            <div class="ofc-slide">4</div>
-          </div>
-        </div>
-        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
-      </section>
-    </section>
-
-    <h2>アスペクト比バリエーション</h2>
-
-    <section class="demo-carousel">
-      <h3>Demo 7: aspect 16:9 (横長)</h3>
-      <p class="demo-info">itemsVisible: 2, peekRatio: 0.15, aspect: 16/9</p>
-      <section class="ofcarousel" id="carousel7" aria-roledescription="carousel" style="--ofc-items-visible: 2; --ofc-aspect-ratio: 1.78;">
-        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
-        <div class="ofc-viewport">
-          <div class="ofc-track">
-            <div class="ofc-slide">16:9</div>
-            <div class="ofc-slide">Video</div>
+            <div class="ofc-slide">1:1</div>
+            <div class="ofc-slide">Square</div>
             <div class="ofc-slide">Format</div>
+            <div class="ofc-slide">Demo</div>
           </div>
         </div>
-        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
       </section>
     </section>
 
     <section class="demo-carousel">
-      <h3>Demo 8: aspect 4:3 (正方形寄り)</h3>
-      <p class="demo-info">itemsVisible: 3, peekRatio: 0.1, aspect: 4/3</p>
-      <section class="ofcarousel" id="carousel8" aria-roledescription="carousel" style="--ofc-items-visible: 3; --ofc-aspect-ratio: 1.33;">
-        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+      <h3>Demo 6: aspect: 4/3</h3>
+      <p class="demo-info">itemsVisible: 3, aspect: 4/3</p>
+      <section class="ofcarousel" id="carousel6" aria-roledescription="carousel" style="--ofc-items-visible: 3; --ofc-aspect-ratio: 1.33;">
         <div class="ofc-viewport">
           <div class="ofc-track">
             <div class="ofc-slide">4:3</div>
@@ -216,84 +157,198 @@
             <div class="ofc-slide">Format</div>
           </div>
         </div>
-        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
       </section>
     </section>
 
-    <h2>viewport幅バリエーション（親に合わせる）</h2>
+    <section class="demo-carousel">
+      <h3>Demo 7: aspect: 16/9 (デフォルト)</h3>
+      <p class="demo-info">itemsVisible: 3, aspect: 16/9</p>
+      <section class="ofcarousel" id="carousel7" aria-roledescription="carousel" style="--ofc-items-visible: 3;">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide">16:9</div>
+            <div class="ofc-slide">Wide</div>
+            <div class="ofc-slide">Format</div>
+            <div class="ofc-slide">Default</div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+    </section>
+
+    <h2>peek（次のアイテムの見え方）のバリエーション</h2>
 
     <section class="demo-carousel">
-      <h3>Demo 9: 親コンテナ幅100%</h3>
-      <p class="demo-info">itemsVisible: 4, peekRatio: 0.1, viewport幅は親に合わせる</p>
-      <div class="container-wrapper full-width-container">
-        <section class="ofcarousel flex-width" id="carousel9" aria-roledescription="carousel" style="--ofc-items-visible: 4;">
-          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
-          <div class="ofc-viewport">
-            <div class="ofc-track">
-              <div class="ofc-slide">1</div>
-              <div class="ofc-slide">2</div>
-              <div class="ofc-slide">3</div>
-              <div class="ofc-slide">4</div>
-              <div class="ofc-slide">5</div>
-              <div class="ofc-slide">6</div>
-            </div>
+      <h3>Demo 8: peek: 30px</h3>
+      <p class="demo-info">itemsVisible: 2, peek: 30px (固定値)</p>
+      <section class="ofcarousel" id="carousel8" aria-roledescription="carousel" style="--ofc-items-visible: 2;">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide">30px</div>
+            <div class="ofc-slide">peek</div>
+            <div class="ofc-slide">small</div>
+            <div class="ofc-slide">A</div>
+            <div class="ofc-slide">B</div>
           </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
           <button class="ofc-nav ofc-next" aria-label="次">▶</button>
-        </section>
-      </div>
+        </div>
+      </section>
     </section>
 
     <section class="demo-carousel">
-      <h3>Demo 10: 親コンテナ幅50%</h3>
-      <p class="demo-info">itemsVisible: 2, peekRatio: 0.2, viewport幅は親の50%</p>
-      <div class="container-wrapper half-width-container">
-        <section class="ofcarousel flex-width" id="carousel10" aria-roledescription="carousel" style="--ofc-items-visible: 2;">
-          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
-          <div class="ofc-viewport">
-            <div class="ofc-track">
-              <div class="ofc-slide">A</div>
-              <div class="ofc-slide">B</div>
-              <div class="ofc-slide">C</div>
-              <div class="ofc-slide">D</div>
-            </div>
+      <h3>Demo 9: peek: 60px</h3>
+      <p class="demo-info">itemsVisible: 2, peek: 60px (固定値)</p>
+      <section class="ofcarousel" id="carousel9" aria-roledescription="carousel" style="--ofc-items-visible: 2;">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide">60px</div>
+            <div class="ofc-slide">peek</div>
+            <div class="ofc-slide">large</div>
+            <div class="ofc-slide">C</div>
+            <div class="ofc-slide">D</div>
           </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
           <button class="ofc-nav ofc-next" aria-label="次">▶</button>
-        </section>
-      </div>
+        </div>
+      </section>
     </section>
 
-    <p class="hint">複数のカルーセルを独立して制御できます。左右キーでも操作可能です。</p>
+    <h2>peekRatio（相対 peek）のバリエーション</h2>
+
+    <section class="demo-carousel">
+      <h3>Demo 10: peekRatio: 0.1 (10%)</h3>
+      <p class="demo-info">itemsVisible: 3, peekRatio: 0.1</p>
+      <section class="ofcarousel" id="carousel10" aria-roledescription="carousel" style="--ofc-items-visible: 3;">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide">10%</div>
+            <div class="ofc-slide">ratio</div>
+            <div class="ofc-slide">small</div>
+            <div class="ofc-slide">E</div>
+            <div class="ofc-slide">F</div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="demo-carousel">
+      <h3>Demo 11: peekRatio: 1/3 (約33%)</h3>
+      <p class="demo-info">itemsVisible: 2, peekRatio: 1/3</p>
+      <section class="ofcarousel" id="carousel11" aria-roledescription="carousel" style="--ofc-items-visible: 2;">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide">1/3</div>
+            <div class="ofc-slide">ratio</div>
+            <div class="ofc-slide">large</div>
+            <div class="ofc-slide">G</div>
+            <div class="ofc-slide">H</div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+    </section>
+
+    <h2>拡張オプション: dots / autoplay</h2>
+
+    <section class="demo-carousel">
+      <h3>Demo 12: dots インジケーター</h3>
+      <p class="demo-info">itemsVisible: 1, dots: true, infinite: true</p>
+      <section class="ofcarousel" id="carousel12" aria-roledescription="carousel" style="--ofc-items-visible: 1;">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide">dots</div>
+            <div class="ofc-slide">indicator</div>
+            <div class="ofc-slide">enabled</div>
+            <div class="ofc-slide">demo</div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="demo-carousel">
+      <h3>Demo 13: autoplay + dots</h3>
+      <p class="demo-info">itemsVisible: 2, dots: true, autoplay: 2s, infinite: true</p>
+      <section class="ofcarousel" id="carousel13" aria-roledescription="carousel" style="--ofc-items-visible: 2;">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide">auto</div>
+            <div class="ofc-slide">play</div>
+            <div class="ofc-slide">with</div>
+            <div class="ofc-slide">dots</div>
+            <div class="ofc-slide">enabled</div>
+            <div class="ofc-slide">demo</div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+    </section>
+
+    <p class="hint">複数のカルーセルを独立して制御できます。左右キーでも操作可能です（フォーカス時）。</p>
   </main>
 
   <script src="ofcarousel.js"></script>
   <script>
     console.log('Initializing carousels...');
 
-    // Demo 1: 基本
+    // Demo 1: デフォルト
     const c1 = new OverflowCarousel('#carousel1', {});
 
-    // Demo 2: peekRatio で peek を動的計算
-    const c2 = new OverflowCarousel('#carousel2', { peekRatio: 0.15 });
+    // Demo 1.5: 親コンテナ幅に合わせる
+    const c1b = new OverflowCarousel('#carousel1b', {});
 
-    // Demo 3: JS オプション指定
-    const c3 = new OverflowCarousel('#carousel3', {
+    // Demo 2-4: itemsVisible バリエーション
+    const c2 = new OverflowCarousel('#carousel2', { itemsVisible: 1 });
+    const c3 = new OverflowCarousel('#carousel3', { itemsVisible: 2 });
+    const c4 = new OverflowCarousel('#carousel4', { itemsVisible: 4 });
+
+    // Demo 5-7: aspect バリエーション
+    const c5 = new OverflowCarousel('#carousel5', { itemsVisible: 3, aspect: 1 });
+    const c6 = new OverflowCarousel('#carousel6', { itemsVisible: 3, aspect: 4/3 });
+    const c7 = new OverflowCarousel('#carousel7', { itemsVisible: 3, aspect: 16/9 });
+
+    // Demo 8-9: peek バリエーション
+    const c8 = new OverflowCarousel('#carousel8', { itemsVisible: 2, peek: '30px' });
+    const c9 = new OverflowCarousel('#carousel9', { itemsVisible: 2, peek: '60px' });
+
+    // Demo 10-11: peekRatio バリエーション
+    const c10 = new OverflowCarousel('#carousel10', { itemsVisible: 3, peekRatio: 0.1 });
+    const c11 = new OverflowCarousel('#carousel11', { itemsVisible: 2, peekRatio: 1/3 });
+
+    // Demo 12-13: dots / autoplay
+    const c12 = new OverflowCarousel('#carousel12', { itemsVisible: 1, dots: true });
+    const c13 = new OverflowCarousel('#carousel13', {
       itemsVisible: 2,
-      peek: '40px',
-      infinite: true
+      dots: true,
+      autoplay: true,
+      autoplayInterval: 2000,
+      pauseOnHover: true
     });
-
-    // Demo 4-6: peekRatio バリエーション
-    const c4 = new OverflowCarousel('#carousel4', { peekRatio: 0.05 });
-    const c5 = new OverflowCarousel('#carousel5', { peekRatio: 0.25 });
-    const c6 = new OverflowCarousel('#carousel6', { peekRatio: 0.5 });
-
-    // Demo 7-8: アスペクト比バリエーション
-    const c7 = new OverflowCarousel('#carousel7', { peekRatio: 0.15, aspect: 16/9 });
-    const c8 = new OverflowCarousel('#carousel8', { peekRatio: 0.1, aspect: 4/3 });
-
-    // Demo 9-10: viewport幅バリエーション
-    const c9 = new OverflowCarousel('#carousel9', { peekRatio: 0.1 });
-    const c10 = new OverflowCarousel('#carousel10', { peekRatio: 0.2 });
 
     console.log('All carousels initialized.');
   </script>

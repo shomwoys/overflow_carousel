@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OverflowCarousel — 実用的な例</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="ofcarousel.css">
+  <link rel="stylesheet" href="examples.css">
+</head>
+<body>
+  <main class="page">
+    <nav class="examples-nav">
+      <a href="index.html" class="back-link">← デモ一覧へ</a>
+    </nav>
+
+    <h1>OverflowCarousel — 実用的な例</h1>
+    <p class="intro-text">実際のプロジェクトで使用できるカルーセルパターンの例です。</p>
+
+    <!-- Pattern 1: Product Cards -->
+    <section class="examples-section">
+      <h2>商品紹介カルーセル</h2>
+      <p class="section-desc">eコマースでよく見かけるパターン。商品画像 + タイトル + 価格 + 購入ボタン</p>
+      <section class="ofcarousel" id="products-carousel" aria-roledescription="carousel">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide product-card">
+              <div class="product-image">
+                <svg class="placeholder-svg" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="300" height="400" fill="#667eea"/>
+                  <text x="150" y="200" font-size="24" font-weight="bold" fill="white" text-anchor="middle">Product 1</text>
+                </svg>
+              </div>
+              <div class="product-info">
+                <h3 class="product-title">ワイヤレスヘッドフォン</h3>
+                <p class="product-price">¥15,800</p>
+                <button class="product-btn">カートに追加</button>
+              </div>
+            </div>
+
+            <div class="ofc-slide product-card">
+              <div class="product-image">
+                <svg class="placeholder-svg" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="300" height="400" fill="#f093fb"/>
+                  <text x="150" y="200" font-size="24" font-weight="bold" fill="white" text-anchor="middle">Product 2</text>
+                </svg>
+              </div>
+              <div class="product-info">
+                <h3 class="product-title">スマートウォッチ</h3>
+                <p class="product-price">¥24,900</p>
+                <button class="product-btn">カートに追加</button>
+              </div>
+            </div>
+
+            <div class="ofc-slide product-card">
+              <div class="product-image">
+                <svg class="placeholder-svg" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="300" height="400" fill="#4facfe"/>
+                  <text x="150" y="200" font-size="24" font-weight="bold" fill="white" text-anchor="middle">Product 3</text>
+                </svg>
+              </div>
+              <div class="product-info">
+                <h3 class="product-title">ポータブルスピーカー</h3>
+                <p class="product-price">¥8,980</p>
+                <button class="product-btn">カートに追加</button>
+              </div>
+            </div>
+
+            <div class="ofc-slide product-card">
+              <div class="product-image">
+                <svg class="placeholder-svg" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="300" height="400" fill="#667eea"/>
+                  <text x="150" y="200" font-size="24" font-weight="bold" fill="white" text-anchor="middle">Product 4</text>
+                </svg>
+              </div>
+              <div class="product-info">
+                <h3 class="product-title">USB-Cケーブル 2m</h3>
+                <p class="product-price">¥1,980</p>
+                <button class="product-btn">カートに追加</button>
+              </div>
+            </div>
+
+            <div class="ofc-slide product-card">
+              <div class="product-image">
+                <svg class="placeholder-svg" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="300" height="400" fill="#f093fb"/>
+                  <text x="150" y="200" font-size="24" font-weight="bold" fill="white" text-anchor="middle">Product 5</text>
+                </svg>
+              </div>
+              <div class="product-info">
+                <h3 class="product-title">ワイヤレスマウス</h3>
+                <p class="product-price">¥3,480</p>
+                <button class="product-btn">カートに追加</button>
+              </div>
+            </div>
+
+            <div class="ofc-slide product-card">
+              <div class="product-image">
+                <svg class="placeholder-svg" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="300" height="400" fill="#4facfe"/>
+                  <text x="150" y="200" font-size="24" font-weight="bold" fill="white" text-anchor="middle">Product 6</text>
+                </svg>
+              </div>
+              <div class="product-info">
+                <h3 class="product-title">USB-Cハブ 7in1</h3>
+                <p class="product-price">¥5,980</p>
+                <button class="product-btn">カートに追加</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前の商品">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次の商品">▶</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- Pattern 2: Blog Cards -->
+    <section class="examples-section">
+      <h2>ブログ/ニュースカルーセル</h2>
+      <p class="section-desc">ニュースサイトやブログでよく見かけるパターン。画像 + カテゴリ + タイトル + 日付 + リンク</p>
+      <section class="ofcarousel" id="blog-carousel" aria-roledescription="carousel">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide blog-card">
+              <svg class="placeholder-svg" viewBox="0 0 600 337" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="337" fill="#667eea"/>
+                <text x="300" y="168" font-size="20" font-weight="bold" fill="white" text-anchor="middle">Blog 1</text>
+              </svg>
+              <div class="blog-content">
+                <span class="blog-category">テクノロジー</span>
+                <h3 class="blog-title">2024年のWebトレンド予測</h3>
+                <p class="blog-excerpt">AIと機械学習がさらに進化し、Web開発にも大きな影響を与える見込みです...</p>
+                <div class="blog-meta">
+                  <span class="blog-date">2024年12月10日</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ofc-slide blog-card">
+              <svg class="placeholder-svg" viewBox="0 0 600 337" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="337" fill="#f093fb"/>
+                <text x="300" y="168" font-size="20" font-weight="bold" fill="white" text-anchor="middle">Blog 2</text>
+              </svg>
+              <div class="blog-content">
+                <span class="blog-category">開発</span>
+                <h3 class="blog-title">初心者向けCSSガイド完全版</h3>
+                <p class="blog-excerpt">CSSの基本から実践的なテクニックまで、わかりやすく解説します...</p>
+                <div class="blog-meta">
+                  <span class="blog-date">2024年12月08日</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ofc-slide blog-card">
+              <svg class="placeholder-svg" viewBox="0 0 600 337" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="337" fill="#4facfe"/>
+                <text x="300" y="168" font-size="20" font-weight="bold" fill="white" text-anchor="middle">Blog 3</text>
+              </svg>
+              <div class="blog-content">
+                <span class="blog-category">パフォーマンス</span>
+                <h3 class="blog-title">JavaScriptのパフォーマンス最適化</h3>
+                <p class="blog-excerpt">重いJavaScriptをいかに効率よく実行するか、その秘訣を探ります...</p>
+                <div class="blog-meta">
+                  <span class="blog-date">2024年12月05日</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ofc-slide blog-card">
+              <svg class="placeholder-svg" viewBox="0 0 600 337" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="337" fill="#667eea"/>
+                <text x="300" y="168" font-size="20" font-weight="bold" fill="white" text-anchor="middle">Blog 4</text>
+              </svg>
+              <div class="blog-content">
+                <span class="blog-category">アクセシビリティ</span>
+                <h3 class="blog-title">Webアクセシビリティの重要性</h3>
+                <p class="blog-excerpt">すべてのユーザーに優しいWebサイトの作り方をご紹介します...</p>
+                <div class="blog-meta">
+                  <span class="blog-date">2024年12月02日</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ofc-slide blog-card">
+              <svg class="placeholder-svg" viewBox="0 0 600 337" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="337" fill="#f093fb"/>
+                <text x="300" y="168" font-size="20" font-weight="bold" fill="white" text-anchor="middle">Blog 5</text>
+              </svg>
+              <div class="blog-content">
+                <span class="blog-category">フレームワーク</span>
+                <h3 class="blog-title">React 19の新機能解説</h3>
+                <p class="blog-excerpt">最新版Reactで追加された便利な新機能をリアルタイムで解説...</p>
+                <div class="blog-meta">
+                  <span class="blog-date">2024年11月29日</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ofc-slide blog-card">
+              <svg class="placeholder-svg" viewBox="0 0 600 337" xmlns="http://www.w3.org/2000/svg">
+                <rect width="600" height="337" fill="#4facfe"/>
+                <text x="300" y="168" font-size="20" font-weight="bold" fill="white" text-anchor="middle">Blog 6</text>
+              </svg>
+              <div class="blog-content">
+                <span class="blog-category">設計</span>
+                <h3 class="blog-title">コンポーネント設計のベストプラクティス</h3>
+                <p class="blog-excerpt">再利用可能で保守性の高いコンポーネントを設計するコツ...</p>
+                <div class="blog-meta">
+                  <span class="blog-date">2024年11月26日</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前の記事">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次の記事">▶</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- Pattern 3: Testimonial Cards -->
+    <section class="examples-section">
+      <h2>お客様の声</h2>
+      <p class="section-desc">ユーザーの評価やコメント。アバター + 名前 + 職位 + 評価 + コメント</p>
+      <section class="ofcarousel" id="testimonial-carousel" aria-roledescription="carousel">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="ofc-slide testimonial-card">
+              <div class="testimonial-header">
+                <svg class="testimonial-avatar" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="32" fill="#667eea"/>
+                  <text x="32" y="38" font-size="20" font-weight="bold" fill="white" text-anchor="middle">JD</text>
+                </svg>
+                <div class="testimonial-author">
+                  <h4 class="author-name">田中太郎</h4>
+                  <p class="author-title">スタートアップCEO</p>
+                </div>
+              </div>
+              <div class="testimonial-rating">★★★★★</div>
+              <p class="testimonial-quote">「このライブラリのおかげで、開発時間を大幅に短縮できました。ドキュメントも充実していて、本当に助かっています。」</p>
+            </div>
+
+            <div class="ofc-slide testimonial-card">
+              <div class="testimonial-header">
+                <svg class="testimonial-avatar" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="32" fill="#f093fb"/>
+                  <text x="32" y="38" font-size="20" font-weight="bold" fill="white" text-anchor="middle">YS</text>
+                </svg>
+                <div class="testimonial-author">
+                  <h4 class="author-name">佐藤由美</h4>
+                  <p class="author-title">フロントエンド開発者</p>
+                </div>
+              </div>
+              <div class="testimonial-rating">★★★★★</div>
+              <p class="testimonial-quote">「シンプルで使いやすいAPI。CSS Scroll Snapベースなので、パフォーマンスも素晴らしいです。」</p>
+            </div>
+
+            <div class="ofc-slide testimonial-card">
+              <div class="testimonial-header">
+                <svg class="testimonial-avatar" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="32" fill="#4facfe"/>
+                  <text x="32" y="38" font-size="20" font-weight="bold" fill="white" text-anchor="middle">KI</text>
+                </svg>
+                <div class="testimonial-author">
+                  <h4 class="author-name">石川香織</h4>
+                  <p class="author-title">デザイナー兼開発者</p>
+                </div>
+              </div>
+              <div class="testimonial-rating">★★★★★</div>
+              <p class="testimonial-quote">「無限ループやドット表示、オートプレイなど、必要な機能がすべて揃っています。拡張性も高いです。」</p>
+            </div>
+
+            <div class="ofc-slide testimonial-card">
+              <div class="testimonial-header">
+                <svg class="testimonial-avatar" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="32" fill="#667eea"/>
+                  <text x="32" y="38" font-size="20" font-weight="bold" fill="white" text-anchor="middle">NK</text>
+                </svg>
+                <div class="testimonial-author">
+                  <h4 class="author-name">中村健二</h4>
+                  <p class="author-title">プロダクト企画</p>
+                </div>
+              </div>
+              <div class="testimonial-rating">★★★★</div>
+              <p class="testimonial-quote">「モバイルでも快適に動作します。レスポンシブ対応も簡単で、プロジェクトに即導入できました。」</p>
+            </div>
+
+            <div class="ofc-slide testimonial-card">
+              <div class="testimonial-header">
+                <svg class="testimonial-avatar" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="32" fill="#f093fb"/>
+                  <text x="32" y="38" font-size="20" font-weight="bold" fill="white" text-anchor="middle">KY</text>
+                </svg>
+                <div class="testimonial-author">
+                  <h4 class="author-name">山田花子</h4>
+                  <p class="author-title">Webコンサルタント</p>
+                </div>
+              </div>
+              <div class="testimonial-rating">★★★★★</div>
+              <p class="testimonial-quote">「アクセシビリティへの配慮も素晴らしい。キーボード操作やスクリーンリーダー対応も完璧です。」</p>
+            </div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前の評価">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次の評価">▶</button>
+        </div>
+      </section>
+    </section>
+
+    <p class="hint">各パターンは実際のプロジェクトで使用できるように設計されています。必要に応じてカスタマイズしてご利用ください。</p>
+  </main>
+
+  <script src="ofcarousel.js"></script>
+  <script>
+    // Product carousel: 3列表示、3:4アスペクト
+    new OverflowCarousel('#products-carousel', {
+      itemsVisible: 3,
+      aspect: 3/4
+    });
+
+    // Blog carousel: 2列表示、16:9アスペクト、ドット表示
+    new OverflowCarousel('#blog-carousel', {
+      itemsVisible: 2,
+      aspect: 16/9,
+      dots: true
+    });
+
+    // Testimonial carousel: 1列表示、16:9アスペクト、オートプレイ
+    new OverflowCarousel('#testimonial-carousel', {
+      itemsVisible: 1,
+      aspect: 16/9,
+      dots: true,
+      autoplay: true,
+      autoplayInterval: 5000,
+      pauseOnHover: true
+    });
+
+    console.log('All example carousels initialized.');
+  </script>
+</body>
+</html>
