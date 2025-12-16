@@ -101,6 +101,9 @@ class OverflowCarousel {
       this._setupDynamicHeight();
     }
 
+    // ウィンドウリサイズ対応
+    this._setupResizeHandler();
+
     console.log('[OverflowCarousel] Initialized:', {
       id: this.root.id,
       options: this.options
@@ -615,6 +618,58 @@ class OverflowCarousel {
     this._startAutoplayTimer();
   }
 
+  _setupResizeHandler() {
+    if (!this.viewport) return;
+
+    // リサイズ処理をデバウンス（150ms）
+    this._onResize = () => {
+      clearTimeout(this._resizeTimer);
+      this._resizeTimer = setTimeout(() => {
+        this._handleResize();
+      }, 150);
+    };
+
+    window.addEventListener('resize', this._onResize, { passive: true });
+  }
+
+  _handleResize() {
+    if (!this.viewport || !this.track) return;
+
+    // 現在のスライドインデックスを保存
+    const currentIndex = this._getCurrentIndex();
+
+    // peekPx を再計算
+    if (this.options.peekRatio !== undefined) {
+      // peekRatio: viewport幅と連立方程式で計算
+      const viewportWidth = this.viewport.offsetWidth;
+      const itemsVisible = this.options.itemsVisible;
+      const peekRatio = this.options.peekRatio;
+      this._peekPx = (viewportWidth * peekRatio) / (itemsVisible + 2 * peekRatio);
+    } else {
+      // peek: 文字列値を使用（px, %, vw など）
+      const viewportWidth = this.viewport.offsetWidth;
+      this._peekPx = this._parsePixels(this.options.peek, viewportWidth);
+    }
+
+    // 計算された peek を CSS 変数に反映
+    this.root.style.setProperty('--ofc-peek', this._peekPx + 'px');
+
+    // gap値も再計算（%やvwの場合に対応）
+    this._gapPx = this._parsePixels(this.options.gap);
+
+    // スクロール位置を現在のスライドインデックスに合わせて調整
+    // requestAnimationFrame で次のフレームで実行（レイアウト計算後）
+    requestAnimationFrame(() => {
+      this._scrollToIndex(currentIndex, 'auto');
+    });
+
+    console.log('[OverflowCarousel] Resized:', {
+      id: this.root.id,
+      peekPx: this._peekPx,
+      currentIndex: currentIndex
+    });
+  }
+
   _parsePixels(value, base = window.innerWidth) {
     // CSS 値（px, %, vw, em）をピクセルに変換
     // base パラメータは % や vw の計算基準を指定
@@ -644,6 +699,7 @@ class OverflowCarousel {
     this._onResize && window.removeEventListener('resize', this._onResize);
 
     this._clearAutoplayTimer();
+    clearTimeout(this._resizeTimer);
   }
 }
 
