@@ -660,8 +660,9 @@ class OverflowCarousel {
 
     // スクロール位置を現在のスライドインデックスに合わせて調整
     // requestAnimationFrame で次のフレームで実行（レイアウト計算後）
+    // instant を使用してリサイズ中のスクロールアニメーションを防ぐ
     requestAnimationFrame(() => {
-      this._scrollToIndex(currentIndex, 'auto');
+      this._scrollToIndex(currentIndex, 'instant');
     });
 
     console.log('[OverflowCarousel] Resized:', {
