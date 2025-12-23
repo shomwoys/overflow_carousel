@@ -275,19 +275,12 @@ class OverflowCarousel {
     // 高さを計算して適用
     this._updateDynamicHeight();
     
-    // リサイズ時に再計算（デバウンス付き）
-    this._onResize = () => {
-      clearTimeout(this._resizeTimer);
-      this._resizeTimer = setTimeout(() => {
-        this._updateDynamicHeight();
-      }, 150);
-    };
-    window.addEventListener('resize', this._onResize);
+    // リサイズ処理は _setupResizeHandler() で統合的に処理される
     
     console.log('[OverflowCarousel] Dynamic height mode enabled');
   }
 
-  _updateDynamicHeight() {
+  _updateDynamicHeight(callback) {
     // 全スライドの高さを測定し、最も高いものに合わせる
     if (!this.track) return;
     
@@ -315,6 +308,12 @@ class OverflowCarousel {
           slide.style.height = `${maxHeight}px`;
         });
         console.log('[OverflowCarousel] Dynamic height updated:', maxHeight + 'px');
+      }
+      
+      // コールバックがあれば実行（高さ更新完了後）
+      if (callback && typeof callback === 'function') {
+        // さらに次のフレームで実行（高さ適用後のレイアウト完了を待つ）
+        requestAnimationFrame(callback);
       }
     });
   }
@@ -658,17 +657,27 @@ class OverflowCarousel {
     // gap値も再計算（%やvwの場合に対応）
     this._gapPx = this._parsePixels(this.options.gap, viewportWidth);
 
-    // スクロール位置を現在のスライドインデックスに合わせて調整
-    // requestAnimationFrame で次のフレームで実行（レイアウト計算後）
-    // instant を使用してリサイズ中のスクロールアニメーションを防ぐ
-    requestAnimationFrame(() => {
-      this._scrollToIndex(currentIndex, 'instant');
-    });
+    // aspectAuto の場合、高さも再計算（スクロール位置調整前に実行）
+    if (this.options.aspectAuto) {
+      // _updateDynamicHeight は非同期なので、完了後にスクロール位置を調整
+      this._updateDynamicHeight(() => {
+        // 高さ更新完了後にスクロール位置を調整
+        this._scrollToIndex(currentIndex, 'instant');
+      });
+    } else {
+      // aspectAuto でない場合は通常通りスクロール位置を調整
+      // requestAnimationFrame で次のフレームで実行（レイアウト計算後）
+      // instant を使用してリサイズ中のスクロールアニメーションを防ぐ
+      requestAnimationFrame(() => {
+        this._scrollToIndex(currentIndex, 'instant');
+      });
+    }
 
     console.log('[OverflowCarousel] Resized:', {
       id: this.root.id,
       peekPx: this._peekPx,
-      currentIndex: currentIndex
+      currentIndex: currentIndex,
+      aspectAuto: this.options.aspectAuto
     });
   }
 
