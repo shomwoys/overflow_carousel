@@ -12,6 +12,7 @@ CSS Scroll Snap を使用した軽量で高性能なカルーセルコンポー�
 - `index.html`: 13個のデモ（デフォルト値、itemsVisible、aspect、peek、peekRatio、dots、autoplay）
 - `index.css`: デモページ用スタイル
 - `test-infinite.html`: infinite オプション検証テスト（3パターン）
+- `test-aspect-auto.html`: **aspectAuto オプション検証テスト**（可変高さコンテンツ）
 - `examples.html`: **実用的なカルーセルパターン例**（商品、ブログ、お客様の声）
 - `examples.css`: 実用例用スタイル
 
@@ -27,6 +28,7 @@ python3 -m http.server 8000
 - **`http://localhost:8000/index.html`**: 機能テストと各オプションの動作確認
 - **`http://localhost:8000/examples.html`**: 実務的なカルーセルパターン3種類
 - **`http://localhost:8000/test-infinite.html`**: 無限ループオプションの検証
+- **`http://localhost:8000/test-aspect-auto.html`**: aspectAuto オプションの検証
 
 ## 基本的な使い方
 
@@ -102,6 +104,7 @@ python3 -m http.server 8000
 |-----------|------|---------|
 | `itemsVisible` | 見える個数 | 3 |
 | `aspect` | スライドのアスペクト比（例: 16/9） | 16/9 |
+| `aspectAuto` | コンテンツに応じて高さを自動調整（`true` の場合 `aspect` は無視） | false |
 | `gap` | スライド間隔（CSS値） | '5px' |
 | `peek` | 固定peek幅（px のみ、例: '60px'） | '60px' |
 | `peekRatio` | アイテム幅に対する相対peek比率（例: 1/3） | undefined |
@@ -142,6 +145,34 @@ flex: 0 0 calc((100% - (var(--ofc-items-visible) - 1) * var(--ofc-gap)) / var(--
 
 2. **`peek` 指定時**:
    → 固定ピクセル値（デフォルト: 60px）
+
+### aspectAuto（動的高さ調整）
+
+`aspectAuto: true` を指定すると、固定のアスペクト比ではなく、コンテンツの高さに応じて動的に高さが決まります。
+
+**動作:**
+1. すべてのスライドの高さを測定
+2. 最も高いスライドに合わせて全体の高さを統一
+3. ウィンドウリサイズ時に再計算
+
+**使用例:**
+```javascript
+new OverflowCarousel('#carousel', {
+  itemsVisible: 3,
+  aspectAuto: true,  // コンテンツに応じて高さを自動調整
+  gap: '16px'
+});
+```
+
+**適用シーン:**
+- テキスト量が異なるカード
+- 画像サイズが統一されていないコンテンツ
+- 動的に生成されるコンテンツ
+
+**注意点:**
+- `aspectAuto: true` の場合、`aspect` オプションは無視されます
+- レイアウトシフトを防ぐため、すべてのスライドが同じ高さに統一されます
+- 詳細は `test-aspect-auto.html` を参照
 
 ## 実用的なパターン例（examples.html）
 
