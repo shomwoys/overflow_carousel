@@ -13,6 +13,7 @@
  *   - peek: 固定peek幅（px のみ、例: '60px'）
  *   - gap: item間隔（デフォルト: '16px'）
  *   - aspect: item のアスペクト比（デフォルト: 1）
+ *   - aspectAuto: コンテンツに応じて高さを自動調整（デフォルト: false）
  *   - infinite: 無限ループ（デフォルト: true）
  */
 
@@ -44,6 +45,7 @@ class OverflowCarousel {
       peekRatio: undefined,  // If set, peek will be calculated dynamically
       gap: cssVarGap || '5px',
       aspect: parseFloat(cssVarAspect) || 1.78,
+      aspectAuto: false,  // If true, height is determined by content instead of aspect ratio
       infinite: true,
       dots: false,
       autoplay: false,
@@ -68,6 +70,11 @@ class OverflowCarousel {
       this.root.style.setProperty('--ofc-aspect-ratio', this.options.aspect.toString());
     }
     
+    // If aspectAuto is enabled, add class to remove aspect-ratio constraint
+    if (this.options.aspectAuto) {
+      this.root.classList.add('ofcarousel--aspect-auto');
+    }
+    
     // ピクセル値をキャッシュ（後で viewport 利用可能後に再計算）
     this._gapPx = this._parsePixels(this.options.gap);
 
@@ -88,6 +95,11 @@ class OverflowCarousel {
 
     // オートプレイ
     this._setupAutoplay();
+    
+    // aspectAuto の場合、高さを動的に計算
+    if (this.options.aspectAuto) {
+      this._setupDynamicHeight();
+    }
 
     console.log('[OverflowCarousel] Initialized:', {
       id: this.root.id,
@@ -245,6 +257,62 @@ class OverflowCarousel {
       originalCount: this._originalCount,
       peekPx: this._peekPx,
       infinite: false
+    });
+  }
+
+  _setupDynamicHeight() {
+    // aspectAuto モード: コンテンツに基づいて高さを動的に計算
+    if (!this.viewport || !this.track) {
+      this.viewport = this.root.querySelector('.ofc-viewport');
+      this.track = this.root.querySelector('.ofc-track');
+    }
+    
+    if (!this.viewport || !this.track) return;
+    
+    // 高さを計算して適用
+    this._updateDynamicHeight();
+    
+    // リサイズ時に再計算（デバウンス付き）
+    this._onResize = () => {
+      clearTimeout(this._resizeTimer);
+      this._resizeTimer = setTimeout(() => {
+        this._updateDynamicHeight();
+      }, 150);
+    };
+    window.addEventListener('resize', this._onResize);
+    
+    console.log('[OverflowCarousel] Dynamic height mode enabled');
+  }
+
+  _updateDynamicHeight() {
+    // 全スライドの高さを測定し、最も高いものに合わせる
+    if (!this.track) return;
+    
+    const slides = Array.from(this.track.querySelectorAll('.ofc-slide'));
+    if (slides.length === 0) return;
+    
+    // 一時的にauto heightにして実際のコンテンツの高さを測定
+    slides.forEach(slide => {
+      slide.style.height = 'auto';
+    });
+    
+    // requestAnimationFrame で次のフレームで高さを測定（レンダリング後）
+    requestAnimationFrame(() => {
+      let maxHeight = 0;
+      slides.forEach(slide => {
+        const height = slide.offsetHeight;
+        if (height > maxHeight) {
+          maxHeight = height;
+        }
+      });
+      
+      // 全スライドに最大高さを適用
+      if (maxHeight > 0) {
+        slides.forEach(slide => {
+          slide.style.height = `${maxHeight}px`;
+        });
+        console.log('[OverflowCarousel] Dynamic height updated:', maxHeight + 'px');
+      }
     });
   }
 
@@ -573,6 +641,7 @@ class OverflowCarousel {
     this.root && this._onFocusIn && this.root.removeEventListener('focusin', this._onFocusIn);
     this.root && this._onFocusOut && this.root.removeEventListener('focusout', this._onFocusOut);
     this._onVisibilityChange && document.removeEventListener('visibilitychange', this._onVisibilityChange);
+    this._onResize && window.removeEventListener('resize', this._onResize);
 
     this._clearAutoplayTimer();
   }

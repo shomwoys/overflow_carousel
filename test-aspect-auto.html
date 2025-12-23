@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OverflowCarousel — aspectAuto テスト</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="ofcarousel.css">
+  <style>
+    .test-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .test-card h3 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    .test-card p {
+      margin: 0;
+      line-height: 1.6;
+      opacity: 0.95;
+    }
+    .test-card.short {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .test-card.medium {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    .test-card.long {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+    
+    .comparison-section {
+      margin: 3rem 0;
+      padding: 2rem;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    
+    .note {
+      padding: 1rem;
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      margin: 1rem 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="examples-nav">
+      <a href="index.html" class="back-link">← デモ一覧へ</a>
+    </nav>
+
+    <h1>aspectAuto オプションのテスト</h1>
+    <p class="intro-text">
+      <code>aspectAuto: true</code> を指定すると、固定のアスペクト比ではなく、コンテンツの高さに応じて自動的に高さが決まります。
+    </p>
+
+    <div class="note">
+      <strong>💡 ポイント:</strong> 複数のスライドの高さが異なる場合、最も高いスライドに合わせて全体の高さが統一されます。
+      これにより、スクロール時のレイアウトシフトを防ぎます。
+    </div>
+
+    <!-- Test 1: aspectAuto = true (varying content heights) -->
+    <section class="demo-carousel">
+      <h2>Test 1: aspectAuto = true（可変高さコンテンツ）</h2>
+      <p class="demo-info">
+        短いテキスト、中程度のテキスト、長いテキストが混在。最も高いカードに合わせて高さが統一されます。
+      </p>
+      <section class="ofcarousel" id="carousel-auto" aria-roledescription="carousel">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="test-card short">
+              <h3>短いカード</h3>
+              <p>このカードには少量のテキストしかありません。</p>
+            </div>
+            
+            <div class="test-card medium">
+              <h3>中程度のカード</h3>
+              <p>
+                このカードには中程度の量のテキストが含まれています。
+                複数行にわたる説明文があり、少し高さが必要です。
+              </p>
+            </div>
+            
+            <div class="test-card long">
+              <h3>長いカード</h3>
+              <p>
+                このカードには非常に多くのテキストが含まれています。
+                複数の段落があり、詳細な説明が記載されています。
+                ユーザーに多くの情報を提供するため、高さが最も高くなります。
+              </p>
+              <p>
+                追加の段落もあります。このように、コンテンツ量が多いカードは
+                自然に高くなり、それに合わせて他のカードも同じ高さになります。
+              </p>
+            </div>
+            
+            <div class="test-card short">
+              <h3>また短いカード</h3>
+              <p>こちらも短いコンテンツです。</p>
+            </div>
+            
+            <div class="test-card medium">
+              <h3>また中程度</h3>
+              <p>
+                こちらは中程度の長さのテキストを含むカードです。
+                バランスの取れたコンテンツ量です。
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+    </section>
+
+    <div class="comparison-section">
+      <h2>比較: aspect固定 vs aspectAuto</h2>
+      
+      <!-- Fixed aspect ratio for comparison -->
+      <section class="demo-carousel">
+        <h3>固定アスペクト比（aspect: 16/9）</h3>
+        <p class="demo-info">
+          デフォルトの動作。すべてのカードが固定のアスペクト比で表示されるため、
+          テキストが溢れたり、余白が多くなったりします。
+        </p>
+        <section class="ofcarousel" id="carousel-fixed" aria-roledescription="carousel">
+          <div class="ofc-viewport">
+            <div class="ofc-track">
+              <div class="test-card short" style="overflow: auto;">
+                <h3>短いカード</h3>
+                <p>このカードには少量のテキストしかありません。</p>
+              </div>
+              
+              <div class="test-card medium" style="overflow: auto;">
+                <h3>中程度のカード</h3>
+                <p>
+                  このカードには中程度の量のテキストが含まれています。
+                  複数行にわたる説明文があり、少し高さが必要です。
+                </p>
+              </div>
+              
+              <div class="test-card long" style="overflow: auto;">
+                <h3>長いカード</h3>
+                <p>
+                  このカードには非常に多くのテキストが含まれています。
+                  複数の段落があり、詳細な説明が記載されています。
+                  ユーザーに多くの情報を提供するため、高さが最も高くなります。
+                </p>
+                <p>
+                  追加の段落もあります。このように、コンテンツ量が多いカードは
+                  自然に高くなり、それに合わせて他のカードも同じ高さになります。
+                </p>
+              </div>
+              
+              <div class="test-card short" style="overflow: auto;">
+                <h3>また短いカード</h3>
+                <p>こちらも短いコンテンツです。</p>
+              </div>
+              
+              <div class="test-card medium" style="overflow: auto;">
+                <h3>また中程度</h3>
+                <p>
+                  こちらは中程度の長さのテキストを含むカードです。
+                  バランスの取れたコンテンツ量です。
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="ofc-navs">
+            <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+            <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <!-- Test 2: aspectAuto with images of different sizes -->
+    <section class="demo-carousel">
+      <h2>Test 2: 画像サイズが異なる場合</h2>
+      <p class="demo-info">
+        画像とテキストが混在し、それぞれ高さが異なるコンテンツ。
+      </p>
+      <section class="ofcarousel" id="carousel-images" aria-roledescription="carousel">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="test-card">
+              <svg width="100%" height="120" style="display: block;">
+                <rect width="100%" height="120" fill="#4facfe"/>
+                <text x="50%" y="60" font-size="18" fill="white" text-anchor="middle">小さい画像</text>
+              </svg>
+              <h3>画像 A</h3>
+              <p>高さ120pxの画像</p>
+            </div>
+            
+            <div class="test-card">
+              <svg width="100%" height="200" style="display: block;">
+                <rect width="100%" height="200" fill="#43e97b"/>
+                <text x="50%" y="100" font-size="18" fill="white" text-anchor="middle">大きい画像</text>
+              </svg>
+              <h3>画像 B</h3>
+              <p>高さ200pxの画像</p>
+            </div>
+            
+            <div class="test-card">
+              <svg width="100%" height="160" style="display: block;">
+                <rect width="100%" height="160" fill="#fa709a"/>
+                <text x="50%" y="80" font-size="18" fill="white" text-anchor="middle">中程度の画像</text>
+              </svg>
+              <h3>画像 C</h3>
+              <p>高さ160pxの画像</p>
+            </div>
+            
+            <div class="test-card">
+              <svg width="100%" height="140" style="display: block;">
+                <rect width="100%" height="140" fill="#667eea"/>
+                <text x="50%" y="70" font-size="18" fill="white" text-anchor="middle">画像</text>
+              </svg>
+              <h3>画像 D</h3>
+              <p>高さ140pxの画像</p>
+            </div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- Test 3: aspectAuto with itemsVisible = 1 -->
+    <section class="demo-carousel">
+      <h2>Test 3: itemsVisible = 1 の場合</h2>
+      <p class="demo-info">
+        1つずつ表示する場合も、すべてのスライドが同じ高さで統一されます。
+      </p>
+      <section class="ofcarousel" id="carousel-single" aria-roledescription="carousel">
+        <div class="ofc-viewport">
+          <div class="ofc-track">
+            <div class="test-card short">
+              <h3>スライド 1</h3>
+              <p>短いコンテンツ</p>
+            </div>
+            
+            <div class="test-card long">
+              <h3>スライド 2</h3>
+              <p>
+                これは非常に長いコンテンツを持つスライドです。
+                複数の段落があり、詳細な情報が含まれています。
+              </p>
+              <p>
+                追加の段落です。このスライドが最も高いため、
+                他のスライドもこの高さに合わせられます。
+              </p>
+            </div>
+            
+            <div class="test-card medium">
+              <h3>スライド 3</h3>
+              <p>
+                中程度の長さのコンテンツです。
+                適度な情報量があります。
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="ofc-navs">
+          <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+          <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+  <script src="ofcarousel.js"></script>
+  <script>
+    // Test 1: aspectAuto = true (default itemsVisible = 3)
+    new OverflowCarousel('#carousel-auto', {
+      itemsVisible: 3,
+      aspectAuto: true,
+      gap: '16px',
+      infinite: true,
+      dots: true
+    });
+
+    // Comparison: Fixed aspect ratio
+    new OverflowCarousel('#carousel-fixed', {
+      itemsVisible: 3,
+      aspect: 16/9,
+      gap: '16px',
+      infinite: true,
+      dots: true
+    });
+
+    // Test 2: aspectAuto with images
+    new OverflowCarousel('#carousel-images', {
+      itemsVisible: 3,
+      aspectAuto: true,
+      gap: '16px',
+      infinite: true,
+      dots: true
+    });
+
+    // Test 3: aspectAuto with itemsVisible = 1
+    new OverflowCarousel('#carousel-single', {
+      itemsVisible: 1,
+      aspectAuto: true,
+      gap: '16px',
+      infinite: true,
+      dots: true
+    });
+  </script>
+</body>
+</html>

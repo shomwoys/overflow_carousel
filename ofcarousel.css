@@ -51,6 +51,11 @@
   scroll-snap-stop:always;
 }
 
+/* When aspectAuto is enabled, remove aspect-ratio and use content height */
+.ofcarousel--aspect-auto .ofc-slide {
+  aspect-ratio: auto;
+}
+
 /* Navigation container */
 .ofc-navs{
   display:flex;
