@@ -2,18 +2,29 @@
 
 CSS Scroll Snap を使用した軽量で高性能なカルーセルコンポーネント。無限ループ、ドットインジケーター、オートプレイなど豊富な機能を提供します。
 
+## デモサイト
+
+🚀 **ライブデモ**: https://shomwoys.github.io/overflow_carousel/
+
+- [基本デモ（13パターン）](https://shomwoys.github.io/overflow_carousel/index.html)
+- [実用的な例（商品・ブログ・お客様の声）](https://shomwoys.github.io/overflow_carousel/examples.html)
+- [無限ループ検証](https://shomwoys.github.io/overflow_carousel/test-infinite.html)
+- [aspectAuto検証](https://shomwoys.github.io/overflow_carousel/test-aspect-auto.html)
+- [リサイズ対応テスト](https://shomwoys.github.io/overflow_carousel/test-resize.html)
+
 ## 含まれるファイル
 
 ### コア
-- `ofcarousel.js`: カルーセルコントローラー（ES6 クラス、560行）
+- `ofcarousel.js`: カルーセルコントローラー（ES6 クラス）
 - `ofcarousel.css`: CSS Scroll Snap ベースのライブラリスタイル
 
 ### デモ・ドキュメント
 - `index.html`: 13個のデモ（デフォルト値、itemsVisible、aspect、peek、peekRatio、dots、autoplay）
 - `index.css`: デモページ用スタイル
-- `test-infinite.html`: infinite オプション検証テスト（3パターン）
-- `test-aspect-auto.html`: **aspectAuto オプション検証テスト**（可変高さコンテンツ）
-- `examples.html`: **実用的なカルーセルパターン例**（商品、ブログ、お客様の声）
+- `test-infinite.html`: infinite オプション検証テスト
+- `test-aspect-auto.html`: aspectAuto オプション検証テスト（可変高さコンテンツ）
+- `test-resize.html`: **ウィンドウリサイズ対応テスト**（動的再計算の検証）
+- `examples.html`: 実用的なカルーセルパターン例（商品、ブログ、お客様の声）
 - `examples.css`: 実用例用スタイル
 
 ## 使い方（ブラウザでの確認）
@@ -29,6 +40,7 @@ python3 -m http.server 8000
 - **`http://localhost:8000/examples.html`**: 実務的なカルーセルパターン3種類
 - **`http://localhost:8000/test-infinite.html`**: 無限ループオプションの検証
 - **`http://localhost:8000/test-aspect-auto.html`**: aspectAuto オプションの検証
+- **`http://localhost:8000/test-resize.html`**: ウィンドウリサイズ対応の検証
 
 ## 基本的な使い方
 
@@ -94,9 +106,28 @@ python3 -m http.server 8000
 
 ### レスポンシブ & アクセシビリティ
 - モバイル対応（タッチスクロール対応）
+- **ウィンドウリサイズ対応**: viewport幅変更時の動的再計算（デバウンス処理付き）
 - キーボード操作（ArrowLeft/Right）
 - スクリーンリーダー対応（aria-label、role）
 - Intersection Observer での可視状態追跡（準備中）
+
+## ウィンドウリサイズ対応
+
+ウィンドウサイズ変更時に、カルーセルが自動的に再レイアウトされます。
+
+### 主な機能
+- **現在位置の維持**: リサイズ後も現在のスライドインデックスを保持
+- **動的再計算**: `peekRatio`、`gap`（%, vw）、`aspectAuto` を正しく再計算
+- **デバウンス処理**: throttle（50ms）+ debounce（150ms）で最適化
+- **サブピクセル対応**: `peekRatio` 計算時に0.5px単位で丸めて一貫性を確保
+
+### 対応シーン
+- レスポンシブデザイン（モバイル↔デスクトップ）
+- ブラウザウィンドウのリサイズ
+- 開発者ツールのレスポンシブモード
+- デバイスの向き変更（縦↔横）
+
+詳細は `test-resize.html` を参照してください。
 
 ## オプション一覧
 
@@ -151,8 +182,8 @@ flex: 0 0 calc((100% - (var(--ofc-items-visible) - 1) * var(--ofc-gap)) / var(--
 `aspectAuto: true` を指定すると、固定のアスペクト比ではなく、コンテンツの高さに応じて動的に高さが決まります。
 
 **動作:**
-1. すべてのスライドの高さを測定
-2. 最も高いスライドに合わせて全体の高さを統一
+1. 最初のスライドの高さを測定（画像の読み込み完了後）
+2. viewport の高さをその値に設定
 3. ウィンドウリサイズ時に再計算
 
 **使用例:**
@@ -168,10 +199,12 @@ new OverflowCarousel('#carousel', {
 - テキスト量が異なるカード
 - 画像サイズが統一されていないコンテンツ
 - 動的に生成されるコンテンツ
+- 任意のHTML構造（画像、テキスト、複雑なレイアウト）
 
 **注意点:**
 - `aspectAuto: true` の場合、`aspect` オプションは無視されます
-- レイアウトシフトを防ぐため、すべてのスライドが同じ高さに統一されます
+- viewport の高さのみを制御し、スライド自体は `height: auto` を維持
+- 画像が含まれる場合、すべての画像の読み込み完了を待ってから高さを設定
 - 詳細は `test-aspect-auto.html` を参照
 
 ## 実用的なパターン例（examples.html）
@@ -209,6 +242,9 @@ new OverflowCarousel('#carousel', {
 ├── index.html              # デモページ（13パターン）
 ├── examples.html           # 実務的なパターン例
 ├── test-infinite.html      # 無限ループ検証テスト
+├── test-aspect-auto.html   # aspectAuto 検証テスト
+├── test-resize.html        # ウィンドウリサイズ検証テスト
+├── AGENT_RULES.md          # AI エージェント向けルール
 └── README.md               # このファイル
 ```
 
@@ -222,9 +258,10 @@ new OverflowCarousel('#carousel', {
 ## パフォーマンス
 
 - **レンダリング**: CSS Scroll Snap によるネイティブ実装
-- **イベント処理**: デバウンス（100ms）で効率化
+- **イベント処理**: スクロール（100ms デバウンス）、リサイズ（50ms throttle + 150ms debounce）
 - **メモリ**: DOM クローン最小化（3倍に拡張）
 - **スムージング**: `scroll-behavior: smooth` 非使用（ユーザーの意図を尊重）
+- **サブピクセル最適化**: 0.5px単位の丸めでレンダリング一貫性を確保
 
 ## 今後の拡張予定
 
