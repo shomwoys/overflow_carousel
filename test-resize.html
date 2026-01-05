@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test: Window Resize Handling</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="ofcarousel.css">
+  <style>
+    .resize-indicator {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #333;
+      color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .test-info {
+      background: #e3f2fd;
+      padding: 15px;
+      margin: 20px 0;
+      border-left: 4px solid #2196f3;
+      border-radius: 4px;
+    }
+    .resize-instructions {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-link">← デモ一覧に戻る</a>
+
+  <div class="resize-indicator">
+    Window: <span id="windowSize">-</span>
+  </div>
+
+  <h1>ウィンドウリサイズ対応テスト</h1>
+
+  <div class="test-info">
+    <strong>🎯 このブランチの主要機能:</strong>
+    <p>ウィンドウリサイズ時に、カルーセルが適切に再レイアウトされ、現在のスライド位置を維持します。</p>
+    <ul>
+      <li><strong>デバウンス処理:</strong> リサイズイベントは150msのデバウンス処理で最適化</li>
+      <li><strong>位置維持:</strong> リサイズ後も現在のスライドインデックスを保持</li>
+      <li><strong>動的再計算:</strong> peekRatio, gap(%, vw), aspectAuto を正しく再計算</li>
+    </ul>
+  </div>
+
+  <div class="resize-instructions">
+    <strong>⚠️ テスト手順:</strong>
+    <ol>
+      <li>各カルーセルで中央のスライド（2または3）に移動</li>
+      <li>ブラウザウィンドウの幅を変更（右下からドラッグ）</li>
+      <li>開発者ツール（F12）でレスポンシブモードも試す</li>
+      <li>現在のスライドが維持されることを確認</li>
+      <li>レイアウトが崩れていないことを確認</li>
+      <li>コンソールで警告やエラーがないことを確認</li>
+    </ol>
+  </div>
+
+  <section class="demo-carousel">
+    <h3>Test 1: peekRatio でのリサイズ</h3>
+    <p class="demo-info">peekRatio: 0.1 — ウィンドウ幅に応じて peek 値が動的に変化</p>
+    <section class="ofcarousel" id="carousel1">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">1</div>
+          <div class="ofc-slide">2</div>
+          <div class="ofc-slide">3</div>
+          <div class="ofc-slide">4</div>
+          <div class="ofc-slide">5</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Test 2: 固定 peek でのリサイズ</h3>
+    <p class="demo-info">peek: 50 (px) — 固定値でも正しく動作</p>
+    <section class="ofcarousel" id="carousel2">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">A</div>
+          <div class="ofc-slide">B</div>
+          <div class="ofc-slide">C</div>
+          <div class="ofc-slide">D</div>
+          <div class="ofc-slide">E</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Test 3: gap (%) でのリサイズ</h3>
+    <p class="demo-info">gap: '2%' — パーセンテージ単位のgapが再計算される</p>
+    <section class="ofcarousel" id="carousel3">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">α</div>
+          <div class="ofc-slide">β</div>
+          <div class="ofc-slide">γ</div>
+          <div class="ofc-slide">δ</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Test 4: gap (vw) でのリサイズ</h3>
+    <p class="demo-info">gap: '1vw' — viewport単位のgapが再計算される</p>
+    <section class="ofcarousel" id="carousel4">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">🔴</div>
+          <div class="ofc-slide">🟡</div>
+          <div class="ofc-slide">🟢</div>
+          <div class="ofc-slide">🔵</div>
+          <div class="ofc-slide">🟣</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Test 5: aspectAuto でのリサイズ</h3>
+    <p class="demo-info">aspectAuto: true — 高さも自動調整される（画像の高さに基づく）</p>
+    <section class="ofcarousel" id="carousel5">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide"><img src="https://placehold.jp/FF6B6B/FFF/400x300.png?text=1" alt="1"></div>
+          <div class="ofc-slide"><img src="https://placehold.jp/4ECDC4/FFF/400x500.png?text=2" alt="2"></div>
+          <div class="ofc-slide"><img src="https://placehold.jp/45B7D1/FFF/400x300.png?text=3" alt="3"></div>
+          <div class="ofc-slide"><img src="https://placehold.jp/FFA07A/FFF/400x400.png?text=4" alt="4"></div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Test 6: infinite: false でのリサイズ</h3>
+    <p class="demo-info">infinite: false — リサイズ後も境界チェックが正しく機能</p>
+    <section class="ofcarousel" id="carousel6">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">START</div>
+          <div class="ofc-slide">2</div>
+          <div class="ofc-slide">3</div>
+          <div class="ofc-slide">END</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Test 7: 複合パターン</h3>
+    <p class="demo-info">itemsVisible: 2, peekRatio: 0.15, gap: '1.5%', infinite: true</p>
+    <section class="ofcarousel" id="carousel7" style="--ofc-items-visible: 2;">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">Card 1</div>
+          <div class="ofc-slide">Card 2</div>
+          <div class="ofc-slide">Card 3</div>
+          <div class="ofc-slide">Card 4</div>
+          <div class="ofc-slide">Card 5</div>
+          <div class="ofc-slide">Card 6</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <div class="note">
+    <strong>✅ 検証チェックリスト:</strong>
+    <ul>
+      <li>☐ Test 1: peekRatio がウィンドウ幅に応じて変化する</li>
+      <li>☐ Test 2: 固定 peek が正しく維持される</li>
+      <li>☐ Test 3: gap (%) が再計算される</li>
+      <li>☐ Test 4: gap (vw) が再計算される</li>
+      <li>☐ Test 5: aspectAuto で高さが再調整される</li>
+      <li>☐ Test 6: infinite: false でリサイズ後も境界を超えない</li>
+      <li>☐ Test 7: 複合パターンが正しく動作する</li>
+      <li>☐ 全てのテストで現在のスライド位置が維持される</li>
+      <li>☐ デバウンス処理が機能（連続リサイズでパフォーマンス問題なし）</li>
+      <li>☐ コンソールエラーがない</li>
+    </ul>
+  </div>
+
+  <div class="note" style="background-color: #e8f5e9; border-left-color: #4caf50;">
+    <strong>💡 テストのヒント:</strong>
+    <ul>
+      <li>右上の「Window」インジケーターでウィンドウサイズを確認できます</li>
+      <li>コンソール（F12）を開いてリサイズイベントのログを確認できます</li>
+      <li>モバイルサイズ（320px～480px）もテストしてください</li>
+      <li>タブレットサイズ（768px～1024px）もテストしてください</li>
+    </ul>
+  </div>
+
+  <script src="ofcarousel.js"></script>
+  <script>
+    // Window size indicator
+    function updateWindowSize() {
+      document.getElementById('windowSize').textContent = 
+        `${window.innerWidth} × ${window.innerHeight}px`;
+    }
+    updateWindowSize();
+    window.addEventListener('resize', updateWindowSize);
+
+    console.log('Initializing resize test carousels...');
+
+    // Test 1: peekRatio
+    const c1 = new OverflowCarousel('#carousel1', {
+      itemsVisible: 1,
+      peekRatio: 0.1,
+      infinite: true
+    });
+
+    // Test 2: Fixed peek
+    const c2 = new OverflowCarousel('#carousel2', {
+      itemsVisible: 1,
+      peek: 50,
+      infinite: true
+    });
+
+    // Test 3: Percentage gap
+    const c3 = new OverflowCarousel('#carousel3', {
+      itemsVisible: 2,
+      gap: '2%',
+      infinite: true
+    });
+
+    // Test 4: Viewport width gap
+    const c4 = new OverflowCarousel('#carousel4', {
+      itemsVisible: 2,
+      gap: '1vw',
+      infinite: true
+    });
+
+    // Test 5: aspectAuto
+    const c5 = new OverflowCarousel('#carousel5', {
+      itemsVisible: 1,
+      aspectAuto: true,
+      peek: 30,
+      infinite: true
+    });
+
+    // Test 6: infinite: false
+    const c6 = new OverflowCarousel('#carousel6', {
+      itemsVisible: 2,
+      infinite: false,
+      peek: 20
+    });
+
+    // Test 7: Complex pattern
+    const c7 = new OverflowCarousel('#carousel7', {
+      itemsVisible: 2,
+      peekRatio: 0.15,
+      gap: '1.5%',
+      infinite: true
+    });
+
+    console.log('All resize test carousels initialized.');
+
+    // Log resize events for debugging
+    let resizeCount = 0;
+    let lastResizeTime = Date.now();
+    
+    window.addEventListener('resize', () => {
+      resizeCount++;
+      const now = Date.now();
+      const timeSinceLastResize = now - lastResizeTime;
+      lastResizeTime = now;
+      
+      console.log(`Resize event #${resizeCount}:`, {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        timeSinceLast: `${timeSinceLastResize}ms`
+      });
+    });
+
+    // Helper to highlight current slide (optional visual aid)
+    console.log('💡 Tip: Navigate to a middle slide, then resize to see position maintenance.');
+  </script>
+</body>
+</html>

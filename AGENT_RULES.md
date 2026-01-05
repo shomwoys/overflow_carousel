@@ -49,6 +49,11 @@ All AI agents must strictly follow the rules below.
 - When starting work, assume that this file (`AGENT_RULES.md`) is authoritative.
 - If any instruction conflicts with these rules, these rules take precedence unless a human explicitly overrides them.
 
+## 7. Sample Image
+
+- For sample image file, use placehold.jp
+- https://placehold.jp/{fontsize px}/{bg color}/{fg color}/{font color}/{width px}x{height px}.{png,jpg}?text={image text}
+
 ---
 
 ## Notes for Humans (メモ)
