@@ -43,6 +43,17 @@
   padding-right: var(--ofc-peek);
 }
 
+/* When peek is 0, remove padding */
+.ofcarousel--no-peek .ofc-track {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.ofcarousel--no-peek .ofc-viewport {
+  scroll-padding-left: 0;
+  scroll-padding-right: 0;
+}
+
 /* Scroll snap item - each carousel slide */
 .ofc-slide{
   flex:0 0 calc((100% - (var(--ofc-items-visible) - 1) * var(--ofc-gap)) / var(--ofc-items-visible));

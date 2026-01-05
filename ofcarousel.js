@@ -53,8 +53,15 @@ class OverflowCarousel {
       pauseOnHover: true,
       pauseOnFocus: true,
       pauseOnVisibility: true,
+      responsive: undefined,  // { breakpoint: { itemsVisible, peekRatio, peek, ... } }
       ...options  // JS options have highest priority
     };
+    
+    // 元のオプションを保存（レスポンシブ設定適用時に参照）
+    this._baseOptions = { ...this.options };
+
+    // レスポンシブ設定を適用
+    this._applyResponsiveSettings();
 
     // Apply CSS variables only if JS options explicitly override them
     if (options.itemsVisible !== undefined) {
@@ -99,10 +106,81 @@ class OverflowCarousel {
     // ウィンドウリサイズ対応
     this._setupResizeHandler();
 
-    console.log('[OverflowCarousel] Initialized:', {
-      id: this.root.id,
-      options: this.options
+    // Initialized
+  }
+
+  _applyResponsiveSettings() {
+    // レスポンシブ設定がない場合は何もしない
+    if (!this._baseOptions.responsive) return;
+
+    const viewportWidth = window.innerWidth;
+    
+    // ブレークポイントを降順でソート（大きい方から小さい方へ）
+    // max-width方式: 画面幅がブレークポイント以下のとき、そのブレークポイントの設定を適用
+    const breakpoints = Object.keys(this._baseOptions.responsive)
+      .map(Number)
+      .sort((a, b) => b - a);
+    
+    // 変更前の値を記録
+    const oldItemsVisible = this.options.itemsVisible;
+    const oldPeekRatio = this.options.peekRatio;
+    const oldPeek = this.options.peek;
+    
+    // ベース設定にリセット（responsive以外）
+    const baseKeys = Object.keys(this._baseOptions).filter(key => key !== 'responsive');
+    baseKeys.forEach(key => {
+      this.options[key] = this._baseOptions[key];
     });
+    
+    // ベース設定のCSS変数を復元
+    if (this._baseOptions.itemsVisible !== undefined) {
+      this.root.style.setProperty('--ofc-items-visible', this._baseOptions.itemsVisible.toString());
+    }
+    if (this._baseOptions.aspect !== undefined) {
+      this.root.style.setProperty('--ofc-aspect-ratio', this._baseOptions.aspect.toString());
+    }
+    if (this._baseOptions.gap !== undefined) {
+      this.root.style.setProperty('--ofc-gap', this._baseOptions.gap);
+    }
+    
+    // 現在の画面幅に合うブレークポイントを探して適用
+    // 降順ソートされているので、大きい方から順にチェックし、
+    // viewportWidth以下の最初（=最小）のブレークポイントを適用
+    let appliedBreakpoint = null;
+    for (const breakpoint of breakpoints) {
+      if (viewportWidth <= breakpoint) {
+        appliedBreakpoint = breakpoint;
+        // 継続して、より小さいブレークポイントがないかチェック
+      }
+    }
+    
+    // マッチしたブレークポイントの設定を適用
+    if (appliedBreakpoint !== null) {
+      const settings = this._baseOptions.responsive[appliedBreakpoint];
+      // レスポンシブ設定をマージ
+      Object.assign(this.options, settings);
+      
+      // CSS変数を更新
+      if (settings.itemsVisible !== undefined) {
+        this.root.style.setProperty('--ofc-items-visible', settings.itemsVisible.toString());
+      }
+      if (settings.aspect !== undefined) {
+        this.root.style.setProperty('--ofc-aspect-ratio', settings.aspect.toString());
+      }
+      if (settings.gap !== undefined) {
+        this.root.style.setProperty('--ofc-gap', settings.gap);
+      }
+    }
+    
+    // 変更があった場合のみログ出力（1行で簡潔に）
+    const changed = oldItemsVisible !== this.options.itemsVisible || 
+                    oldPeekRatio !== this.options.peekRatio ||
+                    oldPeek !== this.options.peek;
+    
+    if (changed) {
+      const bp = appliedBreakpoint ? `${appliedBreakpoint}px` : 'default';
+      console.log(`🔄 [${bp}] items: ${oldItemsVisible}→${this.options.itemsVisible}, peekRatio: ${oldPeekRatio}→${this.options.peekRatio}`);
+    }
   }
 
   _ensureSlideElements() {
@@ -124,7 +202,7 @@ class OverflowCarousel {
     });
     
     if (added) {
-      console.log('[OverflowCarousel] Added .ofc-slide class to elements');
+      // Added .ofc-slide class to elements
     }
   }
 
@@ -162,6 +240,13 @@ class OverflowCarousel {
     
     // 計算された peek を CSS 変数に反映
     this.root.style.setProperty('--ofc-peek', this._peekPx + 'px');
+    
+    // peek=0 の時は特別なクラスを追加（padding削除用）
+    if (this._peekPx === 0) {
+      this.root.classList.add('ofcarousel--no-peek');
+    } else {
+      this.root.classList.remove('ofcarousel--no-peek');
+    }
 
     // 両端に全スライドのクローンを作成
     const startFragment = document.createDocumentFragment();
@@ -233,14 +318,7 @@ class OverflowCarousel {
       }
     }
 
-    console.log('[OverflowCarousel] Infinite loop setup:', {
-      originalCount: this._originalCount,
-      peekRatio: this.options.peekRatio,
-      peekPx: this._peekPx,
-      step: this._getStep(),
-      firstSlide: originalSlides[0]?.offsetWidth,
-      trackChildren: this.track.children.length
-    });
+    // Infinite loop setup complete
   }
 
   _setupNonInfiniteMode() {
@@ -277,18 +355,28 @@ class OverflowCarousel {
     // CSS変数に反映
     this.root.style.setProperty('--ofc-peek', this._peekPx + 'px');
     
+    // peek=0 の時は特別なクラスを追加（padding削除用）
+    if (this._peekPx === 0) {
+      this.root.classList.add('ofcarousel--no-peek');
+    } else {
+      this.root.classList.remove('ofcarousel--no-peek');
+    }
+    
     // infinite: false の場合、最初のスライドの前に左margin、最後のスライドの後に右marginを削除
     // 中間ではpeekが見えるようにtrackのpaddingは維持
     const firstSlide = originalSlides[0];
     const lastSlide = originalSlides[originalSlides.length - 1];
     
-    if (firstSlide) {
-      // 最初のスライドを左端に寄せる（負のmarginでtrack paddingをキャンセル）
-      firstSlide.style.marginLeft = `-${this._peekPx}px`;
-    }
-    if (lastSlide) {
-      // 最後のスライドを右端に寄せる
-      lastSlide.style.marginRight = `-${this._peekPx}px`;
+    // peek=0 の時はmargin調整不要（paddingが0なので）
+    if (this._peekPx > 0) {
+      if (firstSlide) {
+        // 最初のスライドを左端に寄せる（負のmarginでtrack paddingをキャンセル）
+        firstSlide.style.marginLeft = `-${this._peekPx}px`;
+      }
+      if (lastSlide) {
+        // 最後のスライドを右端に寄せる
+        lastSlide.style.marginRight = `-${this._peekPx}px`;
+      }
     }
     
     // aspectAuto: viewportの高さを最初のスライドの内容に基づいて設定
@@ -324,11 +412,7 @@ class OverflowCarousel {
       }
     }
 
-    console.log('[OverflowCarousel] Non-infinite mode setup:', {
-      originalCount: this._originalCount,
-      peekPx: this._peekPx,
-      infinite: false
-    });
+    // Non-infinite mode setup complete
   }
 
 
@@ -662,13 +746,24 @@ class OverflowCarousel {
   _handleResize() {
     if (!this.viewport || !this.track) return;
 
+    // レスポンシブ設定を再評価
+    const prevItemsVisible = this.options.itemsVisible;
+    const prevPeekRatio = this.options.peekRatio;
+    this._applyResponsiveSettings();
+    
+    // itemsVisible が変更された場合は CSS変数を更新
+    if (prevItemsVisible !== this.options.itemsVisible) {
+      this.root.style.setProperty('--ofc-items-visible', this.options.itemsVisible.toString());
+      // itemsVisible changed during resize
+    }
+
     // 現在のスライドインデックスを保存
     const currentIndex = this._getCurrentIndex();
 
     // viewport幅を取得
     const viewportWidth = this.viewport.offsetWidth;
 
-    // peekPx を再計算
+    // peekPx を再計算（peekRatioまたはitemsVisibleが変わった場合に重要）
     if (this.options.peekRatio !== undefined) {
       // peekRatio: viewport幅と連立方程式で計算
       const itemsVisible = this.options.itemsVisible;
@@ -683,6 +778,13 @@ class OverflowCarousel {
 
     // 計算された peek を CSS 変数に反映
     this.root.style.setProperty('--ofc-peek', this._peekPx + 'px');
+    
+    // peek=0 の時は特別なクラスを追加（padding削除用）
+    if (this._peekPx === 0) {
+      this.root.classList.add('ofcarousel--no-peek');
+    } else {
+      this.root.classList.remove('ofcarousel--no-peek');
+    }
 
     // gap値も再計算（%やvwの場合に対応）
     this._gapPx = this._parsePixels(this.options.gap, viewportWidth);
@@ -712,12 +814,7 @@ class OverflowCarousel {
       });
     }
 
-    console.log('[OverflowCarousel] Resized:', {
-      id: this.root.id,
-      peekPx: this._peekPx,
-      currentIndex: currentIndex,
-      aspectAuto: this.options.aspectAuto
-    });
+    // Resize complete
   }
 
   _parsePixels(value, base = window.innerWidth) {
