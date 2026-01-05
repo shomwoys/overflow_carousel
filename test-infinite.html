@@ -70,12 +70,52 @@
           <div class="ofc-slide">β</div>
           <div class="ofc-slide">γ</div>
           <div class="ofc-slide">δ</div>
+          <div class="ofc-slide">ε</div>
+          <div class="ofc-slide">ζ</div>
         </div>
       </div>
         <div class="ofc-navs">
           <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
                 <button class="ofc-nav ofc-next" aria-label="次">▶</button>
         </div>
+    </section>
+  </section>
+
+  <h2>エッジケーステスト</h2>
+
+  <section class="demo-carousel">
+    <h3>Demo F: infinite: false, スライド数 = itemsVisible</h3>
+    <p class="demo-info">スライド数とitemsVisibleが同じ場合（スクロール不要）</p>
+    <section class="ofcarousel" id="carouselF" style="--ofc-items-visible: 3;">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">1</div>
+          <div class="ofc-slide">2</div>
+          <div class="ofc-slide">3</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Demo G: infinite: false, スライド数 &lt; itemsVisible</h3>
+    <p class="demo-info">スライド数がitemsVisibleより少ない場合</p>
+    <section class="ofcarousel" id="carouselG" style="--ofc-items-visible: 5;">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">A</div>
+          <div class="ofc-slide">B</div>
+          <div class="ofc-slide">C</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
     </section>
   </section>
 
@@ -124,9 +164,24 @@
     <ul>
       <li>☐ Demo A-C（infinite: false）が端で正しく止まるか</li>
       <li>☐ Demo D-E（infinite: true）が無限ループするか</li>
+      <li>☐ Demo F: スライド数 = itemsVisible 時、ナビゲーションが適切に無効化されるか</li>
+      <li>☐ Demo G: スライド数 &lt; itemsVisible 時、ナビゲーションが適切に無効化されるか</li>
+      <li>☐ infinite: false時、端でのボタン無効化が機能するか</li>
       <li>☐ ボタン・キーボード操作が正常に機能するか</li>
+      <li>☐ infinite: false時、スクロール位置が境界を超えないか</li>
       <li>☐ コンソールエラーがないか</li>
     </ul>
+  </div>
+
+  <div class="note" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+    <strong>⚠️ リサイズテスト（このブランチの重要機能）:</strong>
+    <ol>
+      <li>各カルーセルで中央のスライドに移動</li>
+      <li>ブラウザウィンドウをリサイズ</li>
+      <li>現在のスライド位置が維持されることを確認</li>
+      <li>infinite: false 時、境界を超えていないことを確認</li>
+      <li>より詳細なリサイズテストは <a href="test-resize.html" style="color: #856404; text-decoration: underline;">test-resize.html</a> を参照</li>
+    </ol>
   </div>
 
   <script src="ofcarousel.js"></script>
@@ -141,6 +196,10 @@
     // Demo D-E: infinite: true
     const cD = new OverflowCarousel('#carouselD', { itemsVisible: 1, infinite: true });
     const cE = new OverflowCarousel('#carouselE', { itemsVisible: 2, infinite: true });
+
+    // Demo F-G: Edge cases
+    const cF = new OverflowCarousel('#carouselF', { itemsVisible: 3, infinite: false });
+    const cG = new OverflowCarousel('#carouselG', { itemsVisible: 5, infinite: false });
 
     console.log('All test carousels initialized.');
   </script>
