@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test: peek=0 and itemsVisible=1</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="ofcarousel.css">
+  <style>
+    .test-case {
+      margin: 40px 0;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    .test-info {
+      background: #e3f2fd;
+      padding: 15px;
+      margin: 10px 0;
+      border-left: 4px solid #2196f3;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-link">← デモ一覧に戻る</a>
+
+  <h1>peek=0 と itemsVisible=1 のテスト</h1>
+
+  <div class="note">
+    <strong>🎯 テスト目的:</strong>
+    <p>peek=0（隙間なし）と itemsVisible=1（1枚表示）が正しく動作することを確認します。</p>
+    <ul>
+      <li>peek=0 の時、padding が削除されて全幅表示される</li>
+      <li>itemsVisible=1 の時、スライドが viewport 全体を占める</li>
+      <li>スマホ縦持ちのような狭い画面でも正しく動作する</li>
+    </ul>
+  </div>
+
+  <div class="test-case">
+    <h2>Test 1: peek=0, itemsVisible=1, infinite=true</h2>
+    <div class="test-info">最も基本的なケース: 1枚ずつフルスクリーン表示</div>
+    <section class="ofcarousel" id="carousel1">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide" style="background: #FF6B6B;">Slide 1</div>
+          <div class="ofc-slide" style="background: #4ECDC4;">Slide 2</div>
+          <div class="ofc-slide" style="background: #45B7D1;">Slide 3</div>
+          <div class="ofc-slide" style="background: #FFA07A;">Slide 4</div>
+          <div class="ofc-slide" style="background: #98D8C8;">Slide 5</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="test-case">
+    <h2>Test 2: peek=0, itemsVisible=1, infinite=false</h2>
+    <div class="test-info">無限ループなし: 最初と最後で止まる</div>
+    <section class="ofcarousel" id="carousel2">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide" style="background: #E74C3C;">START</div>
+          <div class="ofc-slide" style="background: #3498DB;">Middle 1</div>
+          <div class="ofc-slide" style="background: #2ECC71;">Middle 2</div>
+          <div class="ofc-slide" style="background: #F39C12;">END</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="test-case">
+    <h2>Test 3: peek=0, itemsVisible=1, dots=true, autoplay=true</h2>
+    <div class="test-info">ドットインジケーターとオートプレイ付き</div>
+    <section class="ofcarousel" id="carousel3">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide" style="background: #9B59B6;">1️⃣</div>
+          <div class="ofc-slide" style="background: #1ABC9C;">2️⃣</div>
+          <div class="ofc-slide" style="background: #E67E22;">3️⃣</div>
+          <div class="ofc-slide" style="background: #34495E;">4️⃣</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="test-case">
+    <h2>Test 4: peek=0, itemsVisible=2（比較用）</h2>
+    <div class="test-info">2枚表示で peek なし</div>
+    <section class="ofcarousel" id="carousel4" style="--ofc-items-visible: 2;">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide" style="background: #FF6B6B;">A</div>
+          <div class="ofc-slide" style="background: #4ECDC4;">B</div>
+          <div class="ofc-slide" style="background: #45B7D1;">C</div>
+          <div class="ofc-slide" style="background: #FFA07A;">D</div>
+          <div class="ofc-slide" style="background: #98D8C8;">E</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="test-case">
+    <h2>Test 5: peekRatio=0（動的計算で0）</h2>
+    <div class="test-info">peekRatio: 0 を使用（peek=0 と同じ結果になるべき）</div>
+    <section class="ofcarousel" id="carousel5">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide" style="background: #E8F5E9;">Green 1</div>
+          <div class="ofc-slide" style="background: #C8E6C9;">Green 2</div>
+          <div class="ofc-slide" style="background: #A5D6A7;">Green 3</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="note">
+    <strong>✅ 検証チェックリスト:</strong>
+    <ul>
+      <li>☐ Test 1: スライドが viewport 全体を占めている（左右に隙間がない）</li>
+      <li>☐ Test 2: 最初と最後で正しく止まる</li>
+      <li>☐ Test 3: オートプレイとドットが正しく動作</li>
+      <li>☐ Test 4: 2枚表示でも peek=0 が正しく動作</li>
+      <li>☐ Test 5: peekRatio=0 も同じ結果になる</li>
+      <li>☐ ナビゲーションボタンが正しく動作</li>
+      <li>☐ コンソールエラーがない</li>
+      <li>☐ スクロールがスムーズ</li>
+    </ul>
+  </div>
+
+  <script src="ofcarousel.js"></script>
+  <script>
+    console.log('Initializing peek=0 test carousels...');
+
+    // Test 1: 基本（peek=0, itemsVisible=1, infinite=true）
+    const c1 = new OverflowCarousel('#carousel1', {
+      itemsVisible: 1,
+      peek: '0px',
+      infinite: true
+    });
+
+    // Test 2: infinite=false
+    const c2 = new OverflowCarousel('#carousel2', {
+      itemsVisible: 1,
+      peek: '0px',
+      infinite: false
+    });
+
+    // Test 3: dots + autoplay
+    const c3 = new OverflowCarousel('#carousel3', {
+      itemsVisible: 1,
+      peek: '0px',
+      infinite: true,
+      dots: true,
+      autoplay: true,
+      autoplayInterval: 3000
+    });
+
+    // Test 4: itemsVisible=2
+    const c4 = new OverflowCarousel('#carousel4', {
+      itemsVisible: 2,
+      peek: '0px',
+      infinite: true
+    });
+
+    // Test 5: peekRatio=0
+    const c5 = new OverflowCarousel('#carousel5', {
+      itemsVisible: 1,
+      peekRatio: 0,
+      infinite: true
+    });
+
+    console.log('All peek=0 test carousels initialized.');
+    
+    // デバッグ情報を出力
+    console.log('Carousel 1 peek:', c1._peekPx, 'itemsVisible:', c1.options.itemsVisible);
+    console.log('Carousel 5 peekRatio:', c5.options.peekRatio, 'calculated peek:', c5._peekPx);
+  </script>
+</body>
+</html>

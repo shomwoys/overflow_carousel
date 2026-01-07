@@ -13,6 +13,7 @@
  *   - peek: 固定peek幅（px のみ、例: '60px'）
  *   - gap: item間隔（デフォルト: '16px'）
  *   - aspect: item のアスペクト比（デフォルト: 1）
+ *   - aspectAuto: コンテンツに応じて高さを自動調整（デフォルト: false）
  *   - infinite: 無限ループ（デフォルト: true）
  */
 
@@ -44,6 +45,7 @@ class OverflowCarousel {
       peekRatio: undefined,  // If set, peek will be calculated dynamically
       gap: cssVarGap || '5px',
       aspect: parseFloat(cssVarAspect) || 1.78,
+      aspectAuto: false,  // If true, height is determined by content instead of aspect ratio
       infinite: true,
       dots: false,
       autoplay: false,
@@ -68,6 +70,11 @@ class OverflowCarousel {
       this.root.style.setProperty('--ofc-aspect-ratio', this.options.aspect.toString());
     }
     
+    // If aspectAuto is enabled, add class to remove aspect-ratio constraint
+    if (this.options.aspectAuto) {
+      this.root.classList.add('ofcarousel--aspect-auto');
+    }
+    
     // ピクセル値をキャッシュ（後で viewport 利用可能後に再計算）
     this._gapPx = this._parsePixels(this.options.gap);
 
@@ -88,6 +95,14 @@ class OverflowCarousel {
 
     // オートプレイ
     this._setupAutoplay();
+    
+    // aspectAuto の場合、高さを動的に計算
+    if (this.options.aspectAuto) {
+      this._setupDynamicHeight();
+    }
+
+    // ウィンドウリサイズ対応
+    this._setupResizeHandler();
 
     console.log('[OverflowCarousel] Initialized:', {
       id: this.root.id,
@@ -141,7 +156,9 @@ class OverflowCarousel {
       const viewportWidth = this.viewport.offsetWidth;
       const itemsVisible = this.options.itemsVisible;
       const peekRatio = this.options.peekRatio;
-      this._peekPx = (viewportWidth * peekRatio) / (itemsVisible + 2 * peekRatio);
+      const rawPeek = (viewportWidth * peekRatio) / (itemsVisible + 2 * peekRatio);
+      // 0.5px単位に丸める（サブピクセルの不一致を避ける）
+      this._peekPx = Math.round(rawPeek * 2) / 2;
     } else {
       // peek: 文字列値を使用（px, %, vw など）
       const viewportWidth = this.viewport.offsetWidth;
@@ -218,7 +235,9 @@ class OverflowCarousel {
       const viewportWidth = this.viewport.offsetWidth;
       const itemsVisible = this.options.itemsVisible;
       const peekRatio = this.options.peekRatio;
-      this._peekPx = (viewportWidth * peekRatio) / (itemsVisible + 2 * peekRatio);
+      const rawPeek = (viewportWidth * peekRatio) / (itemsVisible + 2 * peekRatio);
+      // 0.5px単位に丸める（サブピクセルの不一致を避ける）
+      this._peekPx = Math.round(rawPeek * 2) / 2;
     } else {
       const viewportWidth = this.viewport.offsetWidth;
       this._peekPx = this._parsePixels(this.options.peek, viewportWidth);
@@ -245,6 +264,61 @@ class OverflowCarousel {
       originalCount: this._originalCount,
       peekPx: this._peekPx,
       infinite: false
+    });
+  }
+
+  _setupDynamicHeight() {
+    // aspectAuto モード: コンテンツに基づいて高さを動的に計算
+    if (!this.viewport || !this.track) {
+      this.viewport = this.root.querySelector('.ofc-viewport');
+      this.track = this.root.querySelector('.ofc-track');
+    }
+    
+    if (!this.viewport || !this.track) return;
+    
+    // 高さを計算して適用
+    this._updateDynamicHeight();
+    
+    // リサイズ処理は _setupResizeHandler() で統合的に処理される
+    
+    console.log('[OverflowCarousel] Dynamic height mode enabled');
+  }
+
+  _updateDynamicHeight(callback) {
+    // 全スライドの高さを測定し、最も高いものに合わせる
+    if (!this.track) return;
+    
+    const slides = Array.from(this.track.querySelectorAll('.ofc-slide'));
+    if (slides.length === 0) return;
+    
+    // 一時的にauto heightにして実際のコンテンツの高さを測定
+    slides.forEach(slide => {
+      slide.style.height = 'auto';
+    });
+    
+    // requestAnimationFrame で次のフレームで高さを測定（レンダリング後）
+    requestAnimationFrame(() => {
+      let maxHeight = 0;
+      slides.forEach(slide => {
+        const height = slide.offsetHeight;
+        if (height > maxHeight) {
+          maxHeight = height;
+        }
+      });
+      
+      // 全スライドに最大高さを適用
+      if (maxHeight > 0) {
+        slides.forEach(slide => {
+          slide.style.height = `${maxHeight}px`;
+        });
+        console.log('[OverflowCarousel] Dynamic height updated:', maxHeight + 'px');
+      }
+      
+      // コールバックがあれば実行（高さ更新完了後）
+      if (callback && typeof callback === 'function') {
+        // さらに次のフレームで実行（高さ適用後のレイアウト完了を待つ）
+        requestAnimationFrame(callback);
+      }
     });
   }
 
@@ -547,6 +621,85 @@ class OverflowCarousel {
     this._startAutoplayTimer();
   }
 
+  _setupResizeHandler() {
+    if (!this.viewport) return;
+
+    let throttleTimer = null;
+    let debounceTimer = null;
+    const throttleDelay = 50; // リサイズ中の更新頻度（より頻繁に更新）
+    const debounceDelay = 150; // リサイズ終了後の最終調整
+
+    this._onResize = () => {
+      // Throttle: リサイズ中も定期的に更新（50msごと）
+      if (!throttleTimer) {
+        throttleTimer = setTimeout(() => {
+          this._handleResize();
+          throttleTimer = null;
+        }, throttleDelay);
+      }
+
+      // Debounce: リサイズ終了後に最終調整
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        this._handleResize();
+      }, debounceDelay);
+    };
+
+    window.addEventListener('resize', this._onResize, { passive: true });
+  }
+
+  _handleResize() {
+    if (!this.viewport || !this.track) return;
+
+    // 現在のスライドインデックスを保存
+    const currentIndex = this._getCurrentIndex();
+
+    // viewport幅を取得
+    const viewportWidth = this.viewport.offsetWidth;
+
+    // peekPx を再計算
+    if (this.options.peekRatio !== undefined) {
+      // peekRatio: viewport幅と連立方程式で計算
+      const itemsVisible = this.options.itemsVisible;
+      const peekRatio = this.options.peekRatio;
+      const rawPeek = (viewportWidth * peekRatio) / (itemsVisible + 2 * peekRatio);
+      // 0.5px単位に丸める（サブピクセルの不一致を避ける）
+      this._peekPx = Math.round(rawPeek * 2) / 2;
+    } else {
+      // peek: 文字列値を使用（px, %, vw など）
+      this._peekPx = this._parsePixels(this.options.peek, viewportWidth);
+    }
+
+    // 計算された peek を CSS 変数に反映
+    this.root.style.setProperty('--ofc-peek', this._peekPx + 'px');
+
+    // gap値も再計算（%やvwの場合に対応）
+    this._gapPx = this._parsePixels(this.options.gap, viewportWidth);
+
+    // aspectAuto の場合、高さも再計算（スクロール位置調整前に実行）
+    if (this.options.aspectAuto) {
+      // _updateDynamicHeight は非同期なので、完了後にスクロール位置を調整
+      this._updateDynamicHeight(() => {
+        // 高さ更新完了後にスクロール位置を調整
+        this._scrollToIndex(currentIndex, 'instant');
+      });
+    } else {
+      // aspectAuto でない場合は通常通りスクロール位置を調整
+      // requestAnimationFrame で次のフレームで実行（レイアウト計算後）
+      // instant を使用してリサイズ中のスクロールアニメーションを防ぐ
+      requestAnimationFrame(() => {
+        this._scrollToIndex(currentIndex, 'instant');
+      });
+    }
+
+    console.log('[OverflowCarousel] Resized:', {
+      id: this.root.id,
+      peekPx: this._peekPx,
+      currentIndex: currentIndex,
+      aspectAuto: this.options.aspectAuto
+    });
+  }
+
   _parsePixels(value, base = window.innerWidth) {
     // CSS 値（px, %, vw, em）をピクセルに変換
     // base パラメータは % や vw の計算基準を指定
@@ -573,8 +726,10 @@ class OverflowCarousel {
     this.root && this._onFocusIn && this.root.removeEventListener('focusin', this._onFocusIn);
     this.root && this._onFocusOut && this.root.removeEventListener('focusout', this._onFocusOut);
     this._onVisibilityChange && document.removeEventListener('visibilitychange', this._onVisibilityChange);
+    this._onResize && window.removeEventListener('resize', this._onResize);
 
     this._clearAutoplayTimer();
+    clearTimeout(this._resizeTimer);
   }
 }
 

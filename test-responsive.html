@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test: Responsive Breakpoints</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="ofcarousel.css">
+  <style>
+    /* ブレークポイントインジケーター */
+    .breakpoint-indicator {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #333;
+      color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: monospace;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      min-width: 200px;
+    }
+    .breakpoint-indicator .width {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .breakpoint-indicator .name {
+      font-size: 14px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 5px;
+    }
+    .bp-mobile { background: #e91e63; }
+    .bp-tablet { background: #ff9800; }
+    .bp-desktop { background: #4caf50; }
+    
+    /* テストケースごとの視覚的な区別 */
+    .test-case {
+      margin: 40px 0;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 2px solid #ddd;
+    }
+    
+    /* スライドに現在の設定を表示 */
+    .ofc-slide {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      font-weight: bold;
+      position: relative;
+    }
+    
+    /* スライド内の情報表示 */
+    .slide-info {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: monospace;
+      line-height: 1.4;
+    }
+    
+    /* ブレークポイントごとの背景色 */
+    @media (max-width: 480px) {
+      body { background: linear-gradient(to bottom, #fce4ec 0%, #ffffff 100%); }
+      .ofc-slide { border: 3px solid #e91e63; }
+    }
+    @media (min-width: 481px) and (max-width: 768px) {
+      body { background: linear-gradient(to bottom, #fff3e0 0%, #ffffff 100%); }
+      .ofc-slide { border: 3px solid #ff9800; }
+    }
+    @media (min-width: 769px) {
+      body { background: linear-gradient(to bottom, #e8f5e9 0%, #ffffff 100%); }
+      .ofc-slide { border: 3px solid #4caf50; }
+    }
+    
+    .test-info {
+      background: #e3f2fd;
+      padding: 15px;
+      margin: 20px 0;
+      border-left: 4px solid #2196f3;
+      border-radius: 4px;
+    }
+    .breakpoint-guide {
+      background: #f3e5f5;
+      border-left: 4px solid #9c27b0;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .current-settings {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(33, 33, 33, 0.95);
+      color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      max-width: 300px;
+    }
+    .current-settings h4 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #4fc3f7;
+    }
+    .current-settings dl {
+      margin: 0;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 5px 10px;
+    }
+    .current-settings dt {
+      color: #aaa;
+    }
+    .current-settings dd {
+      margin: 0;
+      color: #fff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-link">← デモ一覧に戻る</a>
+
+  <div class="breakpoint-indicator">
+    <div class="width"><span id="windowWidth">-</span>px</div>
+    <div class="name" id="breakpointName">-</div>
+  </div>
+
+  <div class="current-settings" id="currentSettings">
+    <h4>📱 Current Settings</h4>
+    <dl>
+      <dt>Items:</dt>
+      <dd id="settingItems">-</dd>
+      <dt>Peek:</dt>
+      <dd id="settingPeek">-</dd>
+      <dt>Gap:</dt>
+      <dd id="settingGap">-</dd>
+    </dl>
+  </div>
+
+  <h1>レスポンシブブレークポイントテスト</h1>
+
+  <div class="test-info">
+    <strong>🎯 この機能について:</strong>
+    <p>画面幅に応じて自動的にカルーセルの設定を切り替えます。</p>
+    <ul>
+      <li><strong>responsive オプション:</strong> ブレークポイントごとに異なる設定を指定</li>
+      <li><strong>自動切り替え:</strong> ウィンドウリサイズ時に最適な設定を適用</li>
+      <li><strong>モバイルファースト:</strong> 小さい画面でもスムーズに動作</li>
+    </ul>
+  </div>
+
+  <div class="breakpoint-guide">
+    <strong>📐 ブレークポイント一覧:</strong>
+    <ul>
+      <li><strong>～480px (スマホ縦)</strong>: 1枚表示、peek無し</li>
+      <li><strong>～768px (タブレット縦)</strong>: 2枚表示、peek 5%</li>
+      <li><strong>～1024px (タブレット横)</strong>: 3枚表示、peek 8%</li>
+      <li><strong>1024px～ (デスクトップ)</strong>: 4枚表示、peek 10%</li>
+    </ul>
+    <p style="margin-top: 10px; font-size: 14px; color: #666;">
+      💡 ブラウザウィンドウをリサイズして、各ブレークポイントの動作を確認してください。
+    </p>
+  </div>
+
+  <div class="test-case">
+    <h3>Test 1: レスポンシブカルーセル</h3>
+    <p class="demo-info">画面幅に応じて itemsVisible と peekRatio が自動変更されます</p>
+    <section class="ofcarousel" id="carousel1">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <span style="font-size: 48px;">1</span>
+            <div class="slide-info">Slide 1</div>
+          </div>
+          <div class="ofc-slide" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <span style="font-size: 48px;">2</span>
+            <div class="slide-info">Slide 2</div>
+          </div>
+          <div class="ofc-slide" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <span style="font-size: 48px;">3</span>
+            <div class="slide-info">Slide 3</div>
+          </div>
+          <div class="ofc-slide" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <span style="font-size: 48px;">4</span>
+            <div class="slide-info">Slide 4</div>
+          </div>
+          <div class="ofc-slide" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <span style="font-size: 48px;">5</span>
+            <div class="slide-info">Slide 5</div>
+          </div>
+          <div class="ofc-slide" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+            <span style="font-size: 48px; color: white;">6</span>
+            <div class="slide-info">Slide 6</div>
+          </div>
+          <div class="ofc-slide" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+            <span style="font-size: 48px;">7</span>
+            <div class="slide-info">Slide 7</div>
+          </div>
+          <div class="ofc-slide" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+            <span style="font-size: 48px;">8</span>
+            <div class="slide-info">Slide 8</div>
+          </div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Test 2: peek=0 での動作確認</h3>
+    <p class="demo-info">480px以下で peek が完全に0になります（エッジケース）</p>
+    <section class="ofcarousel" id="carousel2">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">A</div>
+          <div class="ofc-slide">B</div>
+          <div class="ofc-slide">C</div>
+          <div class="ofc-slide">D</div>
+          <div class="ofc-slide">E</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <section class="demo-carousel">
+    <h3>Test 3: gap も変更するパターン</h3>
+    <p class="demo-info">画面幅に応じて gap も変更されます</p>
+    <section class="ofcarousel" id="carousel3">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide">🔴</div>
+          <div class="ofc-slide">🟡</div>
+          <div class="ofc-slide">🟢</div>
+          <div class="ofc-slide">🔵</div>
+          <div class="ofc-slide">🟣</div>
+          <div class="ofc-slide">🟠</div>
+        </div>
+      </div>
+      <div class="ofc-navs">
+        <button class="ofc-nav ofc-prev" aria-label="前">◀</button>
+        <button class="ofc-nav ofc-next" aria-label="次">▶</button>
+      </div>
+    </section>
+  </section>
+
+  <div class="note">
+    <strong>✅ 検証チェックリスト:</strong>
+    <ul>
+      <li>☐ スマホサイズ（320px～480px）で1枚表示、peek無しになるか</li>
+      <li>☐ タブレット縦（～768px）で2枚表示になるか</li>
+      <li>☐ タブレット横（～1024px）で3枚表示になるか</li>
+      <li>☐ デスクトップ（1024px～）で4枚表示になるか</li>
+      <li>☐ ブレークポイント切り替え時にスライド位置が維持されるか</li>
+      <li>☐ peek=0 でも正しく動作するか</li>
+      <li>☐ コンソールエラーがないか</li>
+    </ul>
+  </div>
+
+  <div class="note" style="background-color: #e8f5e9; border-left-color: #4caf50;">
+    <strong>💡 テストのヒント:</strong>
+    <ul>
+      <li>右上のインジケーターで現在のブレークポイントを確認できます</li>
+      <li>右下のパネルで現在の設定値をリアルタイム表示</li>
+      <li>開発者ツール（F12）のレスポンシブモードが便利です</li>
+      <li>コンソールでブレークポイント切り替えのログを確認できます</li>
+    </ul>
+  </div>
+
+  <script src="ofcarousel.js"></script>
+  <script>
+    // Breakpoint indicator
+    function updateIndicator() {
+      const width = window.innerWidth;
+      document.getElementById('windowWidth').textContent = width;
+      
+      let breakpointName = '';
+      if (width <= 480) {
+        breakpointName = '📱 スマホ縦';
+      } else if (width <= 768) {
+        breakpointName = '📱 タブレット縦';
+      } else if (width <= 1024) {
+        breakpointName = '💻 タブレット横';
+      } else {
+        breakpointName = '🖥️ デスクトップ';
+      }
+      document.getElementById('breakpointName').textContent = breakpointName;
+    }
+    
+    updateIndicator();
+    window.addEventListener('resize', updateIndicator);
+
+    console.log('Initializing responsive test carousels...');
+
+    // Test 1: 基本的なレスポンシブパターン
+    const c1 = new OverflowCarousel('#carousel1', {
+      itemsVisible: 4,      // デフォルト（デスクトップ）
+      peekRatio: 0.1,
+      infinite: true,
+      responsive: {
+        480: {
+          itemsVisible: 1,
+          peekRatio: 0       // peek無し
+        },
+        768: {
+          itemsVisible: 2,
+          peekRatio: 0.05
+        },
+        1024: {
+          itemsVisible: 3,
+          peekRatio: 0.08
+        }
+      }
+    });
+
+    // Test 2: peek=0 での動作確認
+    const c2 = new OverflowCarousel('#carousel2', {
+      itemsVisible: 3,
+      peekRatio: 0.15,
+      infinite: true,
+      responsive: {
+        480: {
+          itemsVisible: 1,
+          peekRatio: 0       // 完全に0
+        },
+        768: {
+          itemsVisible: 2,
+          peekRatio: 0.1
+        }
+      }
+    });
+
+    // Test 3: gap も変更
+    const c3 = new OverflowCarousel('#carousel3', {
+      itemsVisible: 4,
+      peekRatio: 0.1,
+      gap: '20px',
+      infinite: true,
+      responsive: {
+        480: {
+          itemsVisible: 1,
+          peekRatio: 0,
+          gap: '10px'        // gap も小さく
+        },
+        768: {
+          itemsVisible: 2,
+          peekRatio: 0.05,
+          gap: '15px'
+        },
+        1024: {
+          itemsVisible: 3,
+          peekRatio: 0.08,
+          gap: '18px'
+        }
+      }
+    });
+
+    // ウィンドウサイズとブレークポイント表示の更新
+    function updateWindowSize() {
+      const width = window.innerWidth;
+      document.getElementById('windowWidth').textContent = width;
+      
+      // ブレークポイント名と色を更新
+      const nameElement = document.getElementById('breakpointName');
+      if (width <= 480) {
+        nameElement.textContent = '📱 スマホ縦';
+        nameElement.className = 'name bp-mobile';
+      } else if (width <= 768) {
+        nameElement.textContent = '📱 タブレット縦';
+        nameElement.className = 'name bp-tablet';
+      } else if (width <= 1024) {
+        nameElement.textContent = '💻 タブレット横';
+        nameElement.className = 'name bp-desktop';
+      } else {
+        nameElement.textContent = '🖥️ デスクトップ';
+        nameElement.className = 'name bp-desktop';
+      }
+    }
+
+    // 設定表示の更新
+    function updateCurrentSettings() {
+      const width = window.innerWidth;
+      let items, peek, gap;
+      
+      // Test 1 の設定を表示
+      if (width <= 480) {
+        items = 1;
+        peek = '0px';
+        gap = '10px';
+      } else if (width <= 768) {
+        items = 2;
+        peek = '5%';
+        gap = '15px';
+      } else if (width <= 1024) {
+        items = 3;
+        peek = '8%';
+        gap = '18px';
+      } else {
+        items = 4;
+        peek = '10%';
+        gap = '20px';
+      }
+      
+      document.getElementById('settingItems').textContent = items;
+      document.getElementById('settingPeek').textContent = peek;
+      document.getElementById('settingGap').textContent = gap;
+    }
+    
+    function updateAll() {
+      updateWindowSize();
+      updateCurrentSettings();
+    }
+    
+    updateAll();
+    window.addEventListener('resize', updateAll);
+
+    console.log('All responsive test carousels initialized.');
+    console.log('💡 Resize the window to see breakpoint changes in action!');
+  </script>
+</body>
+</html>

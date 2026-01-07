@@ -19,15 +19,13 @@
   overflow-x: auto;
   overflow-y: hidden;
   width:100%;
-  /* scroll snap 設定 */
-  scroll-snap-type:x proximity;
-  /* スナップ位置を peek を一網に計算 */
+  /* scroll snap 設定 - mandatory で必ずスナップさせる */
+  scroll-snap-type:x mandatory;
+  /* スナップ位置を peek を含めて計算 */
   scroll-padding-left: var(--ofc-peek);
   scroll-padding-right: var(--ofc-peek);
   /* Hide scrollbar */
   scrollbar-width:none;
-  /* Scroll snap should be on the scroll container */
-  scroll-snap-type:x proximity;
 }
 .ofc-viewport::-webkit-scrollbar {
   display:none;
@@ -43,12 +41,28 @@
   padding-right: var(--ofc-peek);
 }
 
+/* When peek is 0, remove padding */
+.ofcarousel--no-peek .ofc-track {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.ofcarousel--no-peek .ofc-viewport {
+  scroll-padding-left: 0;
+  scroll-padding-right: 0;
+}
+
 /* Scroll snap item - each carousel slide */
 .ofc-slide{
   flex:0 0 calc((100% - (var(--ofc-items-visible) - 1) * var(--ofc-gap)) / var(--ofc-items-visible));
   aspect-ratio:var(--ofc-aspect-ratio);
   scroll-snap-align:start;
   scroll-snap-stop:always;
+}
+
+/* When aspectAuto is enabled, remove aspect-ratio and use content height */
+.ofcarousel--aspect-auto .ofc-slide {
+  aspect-ratio: auto;
 }
 
 /* Navigation container */
