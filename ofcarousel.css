@@ -19,15 +19,13 @@
   overflow-x: auto;
   overflow-y: hidden;
   width:100%;
-  /* scroll snap 設定 */
-  scroll-snap-type:x proximity;
-  /* スナップ位置を peek を一網に計算 */
+  /* scroll snap 設定 - mandatory で必ずスナップさせる */
+  scroll-snap-type:x mandatory;
+  /* スナップ位置を peek を含めて計算 */
   scroll-padding-left: var(--ofc-peek);
   scroll-padding-right: var(--ofc-peek);
   /* Hide scrollbar */
   scrollbar-width:none;
-  /* Scroll snap should be on the scroll container */
-  scroll-snap-type:x proximity;
 }
 .ofc-viewport::-webkit-scrollbar {
   display:none;
