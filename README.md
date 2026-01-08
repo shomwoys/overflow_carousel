@@ -11,6 +11,7 @@ CSS Scroll Snap を使用した軽量で高性能なカルーセルコンポー�
 - [無限ループ検証](https://shomwoys.github.io/overflow_carousel/test-infinite.html)
 - [aspectAuto検証](https://shomwoys.github.io/overflow_carousel/test-aspect-auto.html)
 - [リサイズ対応テスト](https://shomwoys.github.io/overflow_carousel/test-resize.html)
+- [レスポンシブブレークポイントテスト](https://shomwoys.github.io/overflow_carousel/test-responsive.html)
 
 ## 含まれるファイル
 
@@ -24,6 +25,7 @@ CSS Scroll Snap を使用した軽量で高性能なカルーセルコンポー�
 - `test-infinite.html`: infinite オプション検証テスト
 - `test-aspect-auto.html`: aspectAuto オプション検証テスト（可変高さコンテンツ）
 - `test-resize.html`: **ウィンドウリサイズ対応テスト**（動的再計算の検証）
+- `test-responsive.html`: **レスポンシブブレークポイントテスト**（画面幅に応じた設定切り替え）
 - `examples.html`: 実用的なカルーセルパターン例（商品、ブログ、お客様の声）
 - `examples.css`: 実用例用スタイル
 
@@ -41,6 +43,7 @@ python3 -m http.server 8000
 - **`http://localhost:8000/test-infinite.html`**: 無限ループオプションの検証
 - **`http://localhost:8000/test-aspect-auto.html`**: aspectAuto オプションの検証
 - **`http://localhost:8000/test-resize.html`**: ウィンドウリサイズ対応の検証
+- **`http://localhost:8000/test-responsive.html`**: レスポンシブブレークポイントの検証
 
 ## 基本的な使い方
 
