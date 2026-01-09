@@ -66,6 +66,28 @@ h2{margin:0 0 12px;font-size:16px;color:var(--muted)}
   background:linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
 }
 
+/* 表示状態による視覚的なフィードバック（利用例） */
+/* 完全に見えているスライド: 通常の透明度 */
+.ofc-slide.ofc-slide-inview {
+  opacity: 1;
+}
+
+/* 部分的に見えているスライド（peek領域）: 半透明 */
+/* 左側のpeek領域 */
+.ofc-slide.ofc-slide-inpeek-left {
+  opacity: 0.5;
+}
+
+/* 右側のpeek領域 */
+.ofc-slide.ofc-slide-inpeek-right {
+  opacity: 0.5;
+}
+
+/* 見えていないスライド: より透明 */
+.ofc-slide.ofc-slide-outview {
+  opacity: 0.3;
+}
+
 .hint{margin-top:24px;color:var(--muted);font-size:13px}
 
 .test-link{
