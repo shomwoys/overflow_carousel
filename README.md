@@ -244,7 +244,7 @@ new OverflowCarousel('#products', {
 
 #### peek無しモバイル表示
 ```javascript
-// スマホでは peek を完全に無効化して、
+// モバイルでは peek を完全に無効化して、
 // コンテンツを最大限に表示
 new OverflowCarousel('#testimonials', {
   itemsVisible: 3,
