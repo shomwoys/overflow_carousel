@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrolling Indicator Test - OverflowCarousel</title>
+  <link rel="stylesheet" href="ofcarousel.css">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 2rem;
+      background: #f5f5f5;
+    }
+    .demo-section {
+      margin-bottom: 3rem;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    
+    /* カルーセル内のスライド */
+    .demo-slide {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    
+    /* ナビゲーションボタン */
+    .ofc-nav-prev,
+    .ofc-nav-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 48px;
+      height: 48px;
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 10;
+    }
+    
+    .ofc-nav-prev {
+      left: 16px;
+    }
+    
+    .ofc-nav-next {
+      right: 16px;
+    }
+    
+    .ofc-nav-prev:hover,
+    .ofc-nav-next:hover {
+      background: rgba(0, 0, 0, 0.7);
+      transform: translateY(-50%) scale(1.1);
+    }
+    
+    /* スクロール中のインジケータースタイル */
+    .ofcarousel.ofc-scrolling-next .ofc-nav-next {
+      background: rgba(102, 126, 234, 0.9);
+      transform: translateY(-50%) scale(1.15);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+    }
+    
+    .ofcarousel.ofc-scrolling-prev .ofc-nav-prev {
+      background: rgba(102, 126, 234, 0.9);
+      transform: translateY(-50%) scale(1.15);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+    }
+    
+    /* インジケーター表示用のバッジ */
+    .scroll-indicator {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 16px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 20;
+      pointer-events: none;
+    }
+    
+    .ofcarousel.ofc-scrolling-next .scroll-indicator-next,
+    .ofcarousel.ofc-scrolling-prev .scroll-indicator-prev {
+      opacity: 1;
+    }
+    
+    /* アニメーション付きの矢印インジケーター */
+    .scroll-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 48px;
+      color: rgba(102, 126, 234, 0.8);
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      animation: pulse 0.6s ease-in-out infinite;
+    }
+    
+    .scroll-arrow-next {
+      right: 80px;
+    }
+    
+    .scroll-arrow-prev {
+      left: 80px;
+    }
+    
+    .ofcarousel.ofc-scrolling-next .scroll-arrow-next {
+      opacity: 1;
+    }
+    
+    .ofcarousel.ofc-scrolling-prev .scroll-arrow-prev {
+      opacity: 1;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        transform: translateY(-50%) scale(1);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translateY(-50%) scale(1.2);
+        opacity: 1;
+      }
+    }
+    
+    .info {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f0f0f0;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .info code {
+      background: #e0e0e0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Scrolling Indicator Test</h1>
+  <p>スクロール中に <code>.ofc-scrolling-next</code> / <code>.ofc-scrolling-prev</code> クラスが付与されることを確認します。</p>
+  
+  <!-- デモ1: ナビゲーションボタンの強調表示 -->
+  <div class="demo-section">
+    <h2>1. ナビゲーションボタンの強調表示</h2>
+    <p>スクロール中、スクロール方向のボタンが光ります。</p>
+    
+    <div class="ofcarousel" id="demo1">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide demo-slide">1</div>
+          <div class="ofc-slide demo-slide">2</div>
+          <div class="ofc-slide demo-slide">3</div>
+          <div class="ofc-slide demo-slide">4</div>
+          <div class="ofc-slide demo-slide">5</div>
+          <div class="ofc-slide demo-slide">6</div>
+          <div class="ofc-slide demo-slide">7</div>
+          <div class="ofc-slide demo-slide">8</div>
+        </div>
+      </div>
+      <button class="ofc-nav-prev">‹</button>
+      <button class="ofc-nav-next">›</button>
+    </div>
+    
+    <div class="info">
+      💡 <strong>実装例:</strong><br>
+      <code>.ofcarousel.ofc-scrolling-next .ofc-nav-next { background: rgba(102, 126, 234, 0.9); }</code>
+    </div>
+  </div>
+  
+  <!-- デモ2: テキストインジケーター -->
+  <div class="demo-section">
+    <h2>2. テキストインジケーター</h2>
+    <p>スクロール中、画面上部にスクロール方向のバッジが表示されます。</p>
+    
+    <div class="ofcarousel" id="demo2">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide demo-slide">1</div>
+          <div class="ofc-slide demo-slide">2</div>
+          <div class="ofc-slide demo-slide">3</div>
+          <div class="ofc-slide demo-slide">4</div>
+          <div class="ofc-slide demo-slide">5</div>
+          <div class="ofc-slide demo-slide">6</div>
+          <div class="ofc-slide demo-slide">7</div>
+          <div class="ofc-slide demo-slide">8</div>
+        </div>
+      </div>
+      <button class="ofc-nav-prev">‹</button>
+      <button class="ofc-nav-next">›</button>
+      <div class="scroll-indicator scroll-indicator-next">→ Next</div>
+      <div class="scroll-indicator scroll-indicator-prev">← Prev</div>
+    </div>
+    
+    <div class="info">
+      💡 <strong>実装例:</strong><br>
+      <code>.ofcarousel.ofc-scrolling-next .scroll-indicator-next { opacity: 1; }</code>
+    </div>
+  </div>
+  
+  <!-- デモ3: アニメーション矢印 -->
+  <div class="demo-section">
+    <h2>3. アニメーション矢印</h2>
+    <p>スクロール中、大きな矢印がパルスアニメーション付きで表示されます。</p>
+    
+    <div class="ofcarousel" id="demo3">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide demo-slide">1</div>
+          <div class="ofc-slide demo-slide">2</div>
+          <div class="ofc-slide demo-slide">3</div>
+          <div class="ofc-slide demo-slide">4</div>
+          <div class="ofc-slide demo-slide">5</div>
+          <div class="ofc-slide demo-slide">6</div>
+          <div class="ofc-slide demo-slide">7</div>
+          <div class="ofc-slide demo-slide">8</div>
+        </div>
+      </div>
+      <button class="ofc-nav-prev">‹</button>
+      <button class="ofc-nav-next">›</button>
+      <div class="scroll-arrow scroll-arrow-next">→</div>
+      <div class="scroll-arrow scroll-arrow-prev">←</div>
+    </div>
+    
+    <div class="info">
+      💡 <strong>実装例:</strong><br>
+      <code>.ofcarousel.ofc-scrolling-next .scroll-arrow-next { opacity: 1; animation: pulse 0.6s infinite; }</code>
+    </div>
+  </div>
+  
+  <!-- デモ4: infinite: false モード -->
+  <div class="demo-section">
+    <h2>4. infinite: false モード</h2>
+    <p>無限ループなしでもスクロールインジケーターが正しく動作します。</p>
+    
+    <div class="ofcarousel" id="demo4">
+      <div class="ofc-viewport">
+        <div class="ofc-track">
+          <div class="ofc-slide demo-slide">1</div>
+          <div class="ofc-slide demo-slide">2</div>
+          <div class="ofc-slide demo-slide">3</div>
+          <div class="ofc-slide demo-slide">4</div>
+          <div class="ofc-slide demo-slide">5</div>
+          <div class="ofc-slide demo-slide">6</div>
+        </div>
+      </div>
+      <button class="ofc-nav-prev">‹</button>
+      <button class="ofc-nav-next">›</button>
+    </div>
+    
+    <div class="info">
+      💡 <code>infinite: false</code> でも <code>.ofc-scrolling-next/prev</code> が正しく付与されます。
+    </div>
+  </div>
+  
+  <script src="ofcarousel.js"></script>
+  <script>
+    // デモ1: 基本設定
+    new OverflowCarousel('#demo1', {
+      itemsVisible: 3,
+      peek: '60px',
+      gap: '16px',
+      infinite: true
+    });
+    
+    // デモ2: 基本設定
+    new OverflowCarousel('#demo2', {
+      itemsVisible: 3,
+      peek: '60px',
+      gap: '16px',
+      infinite: true
+    });
+    
+    // デモ3: 基本設定
+    new OverflowCarousel('#demo3', {
+      itemsVisible: 3,
+      peek: '60px',
+      gap: '16px',
+      infinite: true
+    });
+    
+    // デモ4: infinite: false
+    new OverflowCarousel('#demo4', {
+      itemsVisible: 3,
+      peek: '60px',
+      gap: '16px',
+      infinite: false
+    });
+    
+    // デバッグ用: クラスの変更を監視してログ出力
+    document.querySelectorAll('.ofcarousel').forEach((carousel, index) => {
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const classList = carousel.classList;
+            if (classList.contains('ofc-scrolling-next')) {
+              console.log(`Demo ${index + 1}: 🔵 Scrolling NEXT`);
+            } else if (classList.contains('ofc-scrolling-prev')) {
+              console.log(`Demo ${index + 1}: 🔴 Scrolling PREV`);
+            } else {
+              console.log(`Demo ${index + 1}: ⚪ Scroll ended`);
+            }
+          }
+        });
+      });
+      
+      observer.observe(carousel, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    });
+  </script>
+</body>
+</html>

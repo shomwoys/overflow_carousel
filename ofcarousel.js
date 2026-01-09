@@ -17,6 +17,9 @@
  *   - infinite: 無限ループ（デフォルト: true）
  */
 
+// 定数
+const SCROLL_DEBOUNCE_DELAY = 100; // スクロール終了検出のデバウンス時間（ミリ秒）
+
 class OverflowCarousel {
   constructor(selectorOrElement, options = {}) {
     // Element resolution
@@ -92,6 +95,7 @@ class OverflowCarousel {
     } else {
       // infinite: false の場合も初期化が必要（peek計算とpadding調整）
       this._setupNonInfiniteMode();
+      this._setupNonInfiniteScroll();
     }
 
     // dots（インジケーター）
@@ -105,6 +109,9 @@ class OverflowCarousel {
 
     // ウィンドウリサイズ対応
     this._setupResizeHandler();
+
+    // スクロール方向検出用の変数を初期化
+    this._lastScrollLeft = 0;
 
     // Initialized
   }
@@ -415,6 +422,45 @@ class OverflowCarousel {
     // Non-infinite mode setup complete
   }
 
+  _setupNonInfiniteScroll() {
+    if (!this.viewport || !this.track) return;
+
+    // スクロールハンドラー: 表示状態クラスとdotsを更新
+    this._onNonInfiniteScroll = () => {
+      if (this._isAdjusting) return;
+      
+      // スクロール方向を判定してクラスを追加
+      const currentScrollLeft = this.viewport.scrollLeft;
+      if (currentScrollLeft > this._lastScrollLeft) {
+        this.root.classList.remove('ofc-scrolling-prev');
+        this.root.classList.add('ofc-scrolling-next');
+      } else if (currentScrollLeft < this._lastScrollLeft) {
+        this.root.classList.remove('ofc-scrolling-next');
+        this.root.classList.add('ofc-scrolling-prev');
+      }
+      this._lastScrollLeft = currentScrollLeft;
+      
+      clearTimeout(this._nonInfiniteScrollTimer);
+      this._nonInfiniteScrollTimer = setTimeout(() => {
+        // スクロール終了時にクラスを削除
+        this.root.classList.remove('ofc-scrolling-next', 'ofc-scrolling-prev');
+        
+        // dots のアクティブ状態を更新
+        this._updateActiveDot(this._getCurrentIndex());
+        
+        // 表示状態のクラスを更新
+        this._updateVisibilityClasses();
+      }, SCROLL_DEBOUNCE_DELAY);
+    };
+
+    this.viewport.addEventListener('scroll', this._onNonInfiniteScroll, { passive: true });
+    
+    // 初期状態のクラスを設定
+    requestAnimationFrame(() => {
+      this._updateVisibilityClasses();
+    });
+  }
+
 
 
   _setupScrollJump() {
@@ -425,8 +471,22 @@ class OverflowCarousel {
     // スクロール中の連続呼び出しを避けることで、振動を防止
     this._onScroll = () => {
       if (this._isAdjusting) return;
+      
+      // スクロール方向を判定してクラスを追加
+      const currentScrollLeft = this.viewport.scrollLeft;
+      if (currentScrollLeft > this._lastScrollLeft) {
+        this.root.classList.remove('ofc-scrolling-prev');
+        this.root.classList.add('ofc-scrolling-next');
+      } else if (currentScrollLeft < this._lastScrollLeft) {
+        this.root.classList.remove('ofc-scrolling-next');
+        this.root.classList.add('ofc-scrolling-prev');
+      }
+      this._lastScrollLeft = currentScrollLeft;
+      
       clearTimeout(this._scrollTimer);
       this._scrollTimer = setTimeout(() => {
+        // スクロール終了時にクラスを削除
+        this.root.classList.remove('ofc-scrolling-next', 'ofc-scrolling-prev');
         const left = this.viewport.scrollLeft;
         const step = this._getStep();
         const maxReal = getMaxRealScroll();
@@ -444,6 +504,7 @@ class OverflowCarousel {
           this.viewport.style.scrollBehavior = 'auto';
           this.viewport.scrollLeft = newLeft;
           this.viewport.style.scrollBehavior = prevBehavior;
+          this._lastScrollLeft = newLeft; // 位置調整後の値を記録
           this._isAdjusting = false;
         }
         // 終端クローン領域に到達した
@@ -455,15 +516,24 @@ class OverflowCarousel {
           this.viewport.style.scrollBehavior = 'auto';
           this.viewport.scrollLeft = newLeft;
           this.viewport.style.scrollBehavior = prevBehavior;
+          this._lastScrollLeft = newLeft; // 位置調整後の値を記録
           this._isAdjusting = false;
         }
 
         // dots のアクティブ状態を更新（必要な場合のみ実行）
         this._updateActiveDot(this._getCurrentIndex());
-      }, 100);
+        
+        // 表示状態のクラスを更新
+        this._updateVisibilityClasses();
+      }, SCROLL_DEBOUNCE_DELAY);
     };
 
     this.viewport.addEventListener('scroll', this._onScroll, { passive: true });
+    
+    // 初期状態のクラスを設定
+    requestAnimationFrame(() => {
+      this._updateVisibilityClasses();
+    });
   }
 
   _getStep() {
@@ -472,6 +542,81 @@ class OverflowCarousel {
     const gap = this._gapPx;
     const w = first ? first.getBoundingClientRect().width : 0;
     return w + gap;
+  }
+
+  /**
+   * スライドの表示状態を計算してCSSクラスを更新
+   * itemsVisible、現在のインデックス、peekの有無から計算
+   * - 完全に見えている: .ofc-slide-inview
+   * - 左側で部分的に見えている: .ofc-slide-inpeek-left
+   * - 右側で部分的に見えている: .ofc-slide-inpeek-right
+   * - 見えていない: .ofc-slide-outview
+   */
+  _updateVisibilityClasses() {
+    if (!this.viewport || !this.track) return;
+
+    // すべてのスライドを取得
+    const slides = this.track.querySelectorAll('.ofc-slide');
+    if (!slides.length) return;
+
+    // 現在の表示開始インデックス（実スライドのインデックス）
+    const currentIndex = this._getCurrentIndex();
+    const itemsVisible = this.options.itemsVisible;
+    const hasPeek = this._peekPx > 0;
+    const originalCount = this._originalCount || slides.length;
+
+    slides.forEach((slide, slideIndex) => {
+      // infinite モードの場合、スライドのインデックスを実スライドのインデックスに変換
+      let actualIndex;
+      if (this.options.infinite) {
+        // infinite モードでは: [クローン] [実スライド] [クローン]
+        // 実スライドは originalCount 番目から始まる
+        if (slideIndex < originalCount) {
+          // 開始クローン
+          actualIndex = slideIndex;
+        } else if (slideIndex < originalCount * 2) {
+          // 実スライド
+          actualIndex = slideIndex - originalCount;
+        } else {
+          // 終端クローン
+          actualIndex = slideIndex - originalCount * 2;
+        }
+      } else {
+        actualIndex = slideIndex;
+      }
+
+      // 現在のインデックスを基準とした相対位置を計算
+      let relativePosition = actualIndex - currentIndex;
+      
+      // infinite モードの場合、最短距離を計算（ループを考慮）
+      if (this.options.infinite) {
+        if (relativePosition > originalCount / 2) {
+          relativePosition -= originalCount;
+        } else if (relativePosition < -originalCount / 2) {
+          relativePosition += originalCount;
+        }
+      }
+
+      // クラスを削除
+      slide.classList.remove('ofc-slide-inview', 'ofc-slide-inpeek-left', 'ofc-slide-inpeek-right', 'ofc-slide-outview');
+
+      // 完全に見えている範囲: [0, itemsVisible)
+      if (relativePosition >= 0 && relativePosition < itemsVisible) {
+        slide.classList.add('ofc-slide-inview');
+      }
+      // 左側のpeek領域: -1
+      else if (hasPeek && relativePosition === -1) {
+        slide.classList.add('ofc-slide-inpeek-left');
+      }
+      // 右側のpeek領域: itemsVisible
+      else if (hasPeek && relativePosition === itemsVisible) {
+        slide.classList.add('ofc-slide-inpeek-right');
+      }
+      // それ以外は見えていない
+      else {
+        slide.classList.add('ofc-slide-outview');
+      }
+    });
   }
 
   _setupControls() {
@@ -802,6 +947,10 @@ class OverflowCarousel {
           // 高さ更新完了後にスクロール位置を調整
           requestAnimationFrame(() => {
             this._scrollToIndex(currentIndex, 'instant');
+            // 表示状態のクラスを更新
+            requestAnimationFrame(() => {
+              this._updateVisibilityClasses();
+            });
           });
         });
       }
@@ -811,6 +960,10 @@ class OverflowCarousel {
       // instant を使用してリサイズ中のスクロールアニメーションを防ぐ
       requestAnimationFrame(() => {
         this._scrollToIndex(currentIndex, 'instant');
+        // 表示状態のクラスを更新
+        requestAnimationFrame(() => {
+          this._updateVisibilityClasses();
+        });
       });
     }
 
@@ -836,6 +989,7 @@ class OverflowCarousel {
     // イベントリスナーをクリーンアップ
     document.removeEventListener('keydown', this._keyboardListener);
     this.viewport && this._onScroll && this.viewport.removeEventListener('scroll', this._onScroll);
+    this.viewport && this._onNonInfiniteScroll && this.viewport.removeEventListener('scroll', this._onNonInfiniteScroll);
 
     this.viewport && this._onActiveScroll && this.viewport.removeEventListener('scroll', this._onActiveScroll);
     this.root && this._onMouseEnter && this.root.removeEventListener('mouseenter', this._onMouseEnter);
@@ -845,8 +999,11 @@ class OverflowCarousel {
     this._onVisibilityChange && document.removeEventListener('visibilitychange', this._onVisibilityChange);
     this._onResize && window.removeEventListener('resize', this._onResize);
 
+    // タイマーをクリア
     this._clearAutoplayTimer();
     clearTimeout(this._resizeTimer);
+    clearTimeout(this._scrollTimer);
+    clearTimeout(this._nonInfiniteScrollTimer);
   }
 }
 
