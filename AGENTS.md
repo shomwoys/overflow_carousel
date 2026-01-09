@@ -58,6 +58,7 @@ All AI agents must strictly follow the rules below.
 
 ## Notes for Humans (メモ)
 
+- AGENTS.mdはgithub推奨のエージェントへの補足指示ファイル。
 - このリポジトリは **単独利用**だが、AI agent を併用する前提で運用している。
 - GitHub の権限モデル上、agent は人間と同一権限で動作するため、
   「自己承認禁止」などのチーム向けルールは採用していない。
