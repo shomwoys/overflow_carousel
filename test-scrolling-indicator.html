@@ -34,8 +34,8 @@
     }
     
     /* ナビゲーションボタン */
-    .ofc-nav-prev,
-    .ofc-nav-next {
+    .ofc-nav.ofc-prev,
+    .ofc-nav.ofc-next {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
@@ -51,28 +51,28 @@
       z-index: 10;
     }
     
-    .ofc-nav-prev {
+    .ofc-nav.ofc-prev {
       left: 16px;
     }
     
-    .ofc-nav-next {
+    .ofc-nav.ofc-next {
       right: 16px;
     }
     
-    .ofc-nav-prev:hover,
-    .ofc-nav-next:hover {
+    .ofc-nav.ofc-prev:hover,
+    .ofc-nav.ofc-next:hover {
       background: rgba(0, 0, 0, 0.7);
       transform: translateY(-50%) scale(1.1);
     }
     
     /* スクロール中のインジケータースタイル */
-    .ofcarousel.ofc-scrolling-next .ofc-nav-next {
+    .ofcarousel.ofc-scrolling-next .ofc-nav.ofc-next {
       background: rgba(102, 126, 234, 0.9);
       transform: translateY(-50%) scale(1.15);
       box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
     }
     
-    .ofcarousel.ofc-scrolling-prev .ofc-nav-prev {
+    .ofcarousel.ofc-scrolling-prev .ofc-nav.ofc-prev {
       background: rgba(102, 126, 234, 0.9);
       transform: translateY(-50%) scale(1.15);
       box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
@@ -111,7 +111,6 @@
       opacity: 0;
       transition: opacity 0.2s;
       pointer-events: none;
-      animation: pulse 0.6s ease-in-out infinite;
     }
     
     .scroll-arrow-next {
@@ -124,10 +123,12 @@
     
     .ofcarousel.ofc-scrolling-next .scroll-arrow-next {
       opacity: 1;
+      animation: pulse 0.6s ease-in-out infinite;
     }
     
     .ofcarousel.ofc-scrolling-prev .scroll-arrow-prev {
       opacity: 1;
+      animation: pulse 0.6s ease-in-out infinite;
     }
     
     @keyframes pulse {
@@ -180,13 +181,13 @@
           <div class="ofc-slide demo-slide">8</div>
         </div>
       </div>
-      <button class="ofc-nav-prev">‹</button>
-      <button class="ofc-nav-next">›</button>
+      <button class="ofc-nav ofc-prev">‹</button>
+      <button class="ofc-nav ofc-next">›</button>
     </div>
     
     <div class="info">
       💡 <strong>実装例:</strong><br>
-      <code>.ofcarousel.ofc-scrolling-next .ofc-nav-next { background: rgba(102, 126, 234, 0.9); }</code>
+      <code>.ofcarousel.ofc-scrolling-next .ofc-nav.ofc-next { background: rgba(102, 126, 234, 0.9); }</code>
     </div>
   </div>
   
@@ -208,8 +209,8 @@
           <div class="ofc-slide demo-slide">8</div>
         </div>
       </div>
-      <button class="ofc-nav-prev">‹</button>
-      <button class="ofc-nav-next">›</button>
+      <button class="ofc-nav ofc-prev">‹</button>
+      <button class="ofc-nav ofc-next">›</button>
       <div class="scroll-indicator scroll-indicator-next">→ Next</div>
       <div class="scroll-indicator scroll-indicator-prev">← Prev</div>
     </div>
@@ -238,8 +239,8 @@
           <div class="ofc-slide demo-slide">8</div>
         </div>
       </div>
-      <button class="ofc-nav-prev">‹</button>
-      <button class="ofc-nav-next">›</button>
+      <button class="ofc-nav ofc-prev">‹</button>
+      <button class="ofc-nav ofc-next">›</button>
       <div class="scroll-arrow scroll-arrow-next">→</div>
       <div class="scroll-arrow scroll-arrow-prev">←</div>
     </div>
@@ -266,8 +267,8 @@
           <div class="ofc-slide demo-slide">6</div>
         </div>
       </div>
-      <button class="ofc-nav-prev">‹</button>
-      <button class="ofc-nav-next">›</button>
+      <button class="ofc-nav ofc-prev">‹</button>
+      <button class="ofc-nav ofc-next">›</button>
     </div>
     
     <div class="info">
