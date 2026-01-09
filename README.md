@@ -11,6 +11,8 @@ CSS Scroll Snap を使用した軽量で高性能なカルーセルコンポー�
 - [無限ループ検証](https://shomwoys.github.io/overflow_carousel/test-infinite.html)
 - [aspectAuto検証](https://shomwoys.github.io/overflow_carousel/test-aspect-auto.html)
 - [リサイズ対応テスト](https://shomwoys.github.io/overflow_carousel/test-resize.html)
+- [レスポンシブブレークポイントテスト](https://shomwoys.github.io/overflow_carousel/test-responsive.html)
+- [スクロールインジケーターテスト](https://shomwoys.github.io/overflow_carousel/test-scrolling-indicator.html)
 
 ## 含まれるファイル
 
@@ -24,6 +26,8 @@ CSS Scroll Snap を使用した軽量で高性能なカルーセルコンポー�
 - `test-infinite.html`: infinite オプション検証テスト
 - `test-aspect-auto.html`: aspectAuto オプション検証テスト（可変高さコンテンツ）
 - `test-resize.html`: **ウィンドウリサイズ対応テスト**（動的再計算の検証）
+- `test-responsive.html`: **レスポンシブブレークポイントテスト**（画面幅に応じた設定切り替え）
+- `test-scrolling-indicator.html`: **スクロールインジケーターテスト**（スクロール中のクラス付与）
 - `examples.html`: 実用的なカルーセルパターン例（商品、ブログ、お客様の声）
 - `examples.css`: 実用例用スタイル
 
@@ -41,6 +45,8 @@ python3 -m http.server 8000
 - **`http://localhost:8000/test-infinite.html`**: 無限ループオプションの検証
 - **`http://localhost:8000/test-aspect-auto.html`**: aspectAuto オプションの検証
 - **`http://localhost:8000/test-resize.html`**: ウィンドウリサイズ対応の検証
+- **`http://localhost:8000/test-responsive.html`**: レスポンシブブレークポイントの検証
+- **`http://localhost:8000/test-scrolling-indicator.html`**: スクロールインジケーターの検証
 
 ## 基本的な使い方
 
@@ -74,6 +80,8 @@ python3 -m http.server 8000
 
 ### 自動クラス付与機能
 
+#### .ofc-slide クラスの自動付与
+
 `.ofc-track` の直下の子要素に `.ofc-slide` クラスがない場合、自動的に `.ofc-slide` クラスが付与されます。
 
 ```html
@@ -90,6 +98,30 @@ python3 -m http.server 8000
   <div class="ofc-slide">Slide 2</div>
   <div class="ofc-slide">Slide 3</div>
 </div>
+```
+
+#### スクロール中のクラス付与
+
+カルーセルがスクロールされている間、自動的にクラスが付与されます：
+
+- **`.ofc-scrolling-prev`**: 前（左）方向へスクロール中にルート要素に付与
+- **`.ofc-scrolling-next`**: 次（右）方向へスクロール中にルート要素に付与
+
+スクロール終了後（100msデバウンス後）に自動的に削除されます。これらのクラスを使用して、スクロール中のアニメーションやスタイリングをカスタマイズできます。
+
+```css
+/* スクロール中のスタイル例 */
+.ofcarousel.ofc-scrolling-prev .ofc-nav-prev {
+  background: rgba(102, 126, 234, 0.9);
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+}
+
+.ofcarousel.ofc-scrolling-next .ofc-nav-next {
+  background: rgba(102, 126, 234, 0.9);
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+}
 ```
 
 ## 実装の特徴
