@@ -138,6 +138,7 @@ python3 -m http.server 8000
 
 ### レスポンシブ & アクセシビリティ
 - モバイル対応（タッチスクロール対応）
+- **レスポンシブブレークポイント**: 画面幅に応じた設定の自動切り替え
 - **ウィンドウリサイズ対応**: viewport幅変更時の動的再計算（デバウンス処理付き）
 - キーボード操作（ArrowLeft/Right）
 - スクリーンリーダー対応（aria-label、role）
@@ -161,6 +162,111 @@ python3 -m http.server 8000
 
 詳細は `test-resize.html` を参照してください。
 
+## レスポンシブブレークポイント
+
+画面幅に応じてカルーセルの設定を自動的に切り替えることができます。
+
+### 基本的な使い方
+
+`responsive` オプションを使用して、ブレークポイント（画面幅）ごとに異なる設定を指定します。
+
+```javascript
+new OverflowCarousel('#carousel', {
+  // デフォルト設定（デスクトップ）
+  itemsVisible: 4,
+  peekRatio: 0.1,
+  gap: '20px',
+  
+  // レスポンシブ設定
+  responsive: {
+    // 480px以下の場合
+    480: {
+      itemsVisible: 1,
+      peekRatio: 0,
+      gap: '10px'
+    },
+    // 768px以下の場合
+    768: {
+      itemsVisible: 2,
+      peekRatio: 0.05,
+      gap: '15px'
+    },
+    // 1024px以下の場合
+    1024: {
+      itemsVisible: 3,
+      peekRatio: 0.08,
+      gap: '18px'
+    }
+  }
+});
+```
+
+### 動作の仕組み
+
+- **max-width方式**: 画面幅がブレークポイント以下のとき、そのブレークポイントの設定を適用
+- **カスケード**: 複数のブレークポイントにマッチする場合、マッチしたブレークポイントのうち最も小さい値の設定を適用
+  - 例: 画面幅が400pxで、ブレークポイントが480, 768, 1024の場合 → 480の設定を適用
+- **自動切り替え**: ウィンドウリサイズ時に自動的に最適な設定に切り替わる
+- **位置保持**: ブレークポイント切り替え時も現在のスライド位置を維持
+
+### 設定可能なオプション
+
+レスポンシブブレークポイント内で設定できるオプション：
+- `itemsVisible`: 表示するアイテム数
+- `peekRatio`: 相対的なpeek比率
+- `peek`: 固定peek幅
+- `gap`: アイテム間隔
+- `aspect`: アスペクト比
+- その他のカルーセルオプション
+
+### 実用例
+
+#### モバイルファースト設計
+```javascript
+new OverflowCarousel('#products', {
+  itemsVisible: 4,        // デスクトップ: 4枚表示
+  peekRatio: 0.1,
+  infinite: true,
+  dots: true,
+  responsive: {
+    768: {
+      itemsVisible: 2,    // タブレット: 2枚表示
+      peekRatio: 0.05
+    },
+    480: {
+      itemsVisible: 1,    // モバイル: 1枚表示（フルスクリーン）
+      peekRatio: 0,
+      gap: '0px'
+    }
+  }
+});
+```
+
+#### peek無しモバイル表示
+```javascript
+// モバイルでは peek を完全に無効化して、
+// コンテンツを最大限に表示
+new OverflowCarousel('#testimonials', {
+  itemsVisible: 3,
+  peekRatio: 0.15,
+  responsive: {
+    480: {
+      itemsVisible: 1,
+      peekRatio: 0        // peek無し = フルスクリーン表示
+    }
+  }
+});
+```
+
+### 注意点
+
+- ブレークポイントの数値はピクセル単位で指定（単位は不要）
+- デフォルト設定（ベースオプション）は、画面幅がすべてのブレークポイントより大きい場合に適用される
+- `responsive` オプションで指定されていないプロパティは、ベースオプションの値を継承する
+- リサイズ時のパフォーマンスは最適化済み（throttle + debounce処理）
+
+詳細は `test-responsive.html` を参照してください。
+
 ## オプション一覧
 
 | オプション | 説明 | デフォルト |
@@ -178,6 +284,7 @@ python3 -m http.server 8000
 | `pauseOnHover` | ホバー時に一時停止 | true |
 | `pauseOnFocus` | フォーカス時に一時停止 | true |
 | `pauseOnVisibility` | ページ非表示時に一時停止 | true |
+| `responsive` | レスポンシブブレークポイント設定（画面幅に応じた設定の切り替え） | undefined |
 
 ## CSS変数（デフォルト値）
 
@@ -300,4 +407,3 @@ new OverflowCarousel('#carousel', {
 - [ ] Intersection Observer による動的可視状態クラス付与
 - [ ] タッチジェスチャー検出（スワイプ）
 - [ ] ループ位置のスムーズなアニメーション
-- [ ] レスポンシブブレークポイント自動調整
